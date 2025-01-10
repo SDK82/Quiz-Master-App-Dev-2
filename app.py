@@ -1,14 +1,14 @@
 from flask import Flask
 from backend.config import LocalDevelopmentConfig
 from backend.models import db
-from backend.models import User, Subject, Chapter, Quiz, Question, Score
+from backend.models import User, Role
 from flask_security import Security, SQLAlchemyUserDatastore
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(LocalDevelopmentConfig)
     db.init_app(app)
-    datastore = SQLAlchemyUserDatastore(db, User)
+    datastore = SQLAlchemyUserDatastore(db, User, Role)
     app.security =  Security(app, datastore)
     app.app_context().push()
 
@@ -16,8 +16,7 @@ def create_app():
 
 app = create_app()
 
-app.config.from_object(LocalDevelopmentConfig)
-
+import backend.create_initial_data
 
 @app.route('/')
 def hello():

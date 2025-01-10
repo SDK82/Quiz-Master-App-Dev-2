@@ -1,28 +1,45 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from flask_security import UserMixin 
+from flask_security import UserMixin ,RoleMixin
+import uuid
 
 
 db = SQLAlchemy()
 
 
 
-# User Table
-class User(db.Model):
+
+# Role Table
+class Role(db.Model, RoleMixin):
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), unique=True, nullable=False)
+    description = db.Column(db.String(255))
+
+# Update User Table to include roles
+class User(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(150), unique=True, nullable=False)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     full_name = db.Column(db.String(150), nullable=False)
     qualification = db.Column(db.String(100))
     dob = db.Column(db.Date)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    fs_uniquifier = db.Column(db.String(255), unique = True, nullable=False)
-    active = db.Column(db.Boolean, default=False) # True if the user has activated the account,block 
+    fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))  # Ensure uniqueness
+
 
     # Relationships
     scores = db.relationship('Score', backref='user', lazy=True)
+    roles = db.relationship('Role', secondary='user_roles', backref=db.backref('users', lazy='dynamic'))
+
+# Association Table for User and Role
+class UserRoles(db.Model):
+    __tablename__ = 'user_roles'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+
 
 # Subject Table
 class Subject(db.Model):
