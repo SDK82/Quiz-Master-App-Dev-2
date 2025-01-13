@@ -27,6 +27,7 @@ class User(db.Model, UserMixin):
     dob = db.Column(db.Date)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))  # Ensure uniqueness
+    active = db.Column(db.Boolean, default=True) # Active users can login
 
 
     # Relationships

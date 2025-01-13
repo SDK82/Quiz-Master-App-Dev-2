@@ -2,7 +2,7 @@ from flask import Flask
 from backend.config import LocalDevelopmentConfig
 from backend.models import db
 from backend.models import User, Role
-from flask_security import Security, SQLAlchemyUserDatastore
+from flask_security import Security, SQLAlchemyUserDatastore, auth_required
 
 def create_app():
     app = Flask(__name__)
@@ -23,8 +23,9 @@ def hello():
     return 'Hello, World!'
 
 @app.route('/test')
+@auth_required()
 def test():
-    return 'Test'
+    return 'Test for only auth users'
 
 if __name__ == '__main__':
     app.run(debug=True)
