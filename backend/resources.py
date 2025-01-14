@@ -6,9 +6,26 @@ from flask_security import auth_required
 api = Api(prefix='/api')
 
 # Marshaling fields
+
+
+
+
+api = Api(prefix='/api')
+
+
+# Marshaling fields
 subject_fields = {'id': fields.Integer, 'name': fields.String, 'description': fields.String}
 chapter_fields = {'id': fields.Integer, 'name': fields.String, 'description': fields.String, 'subject_id': fields.Integer}
-question_fields = {'id': fields.Integer, 'question_statement': fields.String, 'quiz_id': fields.Integer}
+question_fields = {
+    'id': fields.Integer,
+    'question_statement': fields.String,
+    'option1': fields.String,
+    'option2': fields.String,
+    'option3': fields.String,
+    'option4': fields.String,
+    'correct_option': fields.Integer,
+    'quiz_id': fields.Integer,
+}
 quiz_fields = {'id': fields.Integer, 'chapter_id': fields.Integer, 'remarks': fields.String, 'date_of_quiz': fields.DateTime}
 score_fields = {'id': fields.Integer, 'quiz_id': fields.Integer, 'user_id': fields.Integer, 'total_score': fields.Float}
 
@@ -22,11 +39,26 @@ class SubjectApi(Resource):
             if not subject:
                 return {'message': 'Subject not found'}, 404
             return subject
-        subjects = Subject.query.all()
-        return subjects
+        return Subject.query.all()
+
+    @auth_required('token')
+    def post(self):
+        if any(role.name == 'admin' for role in current_user.roles):
+            parser = reqparse.RequestParser()
+            parser.add_argument('name', required=True, help='Name is required')
+            parser.add_argument('description', required=True, help='Description is required')
+            args = parser.parse_args()
+
+            new_subject = Subject(name=args['name'], description=args['description'])
+            db.session.add(new_subject)
+            db.session.commit()
+            return {'message': 'Subject created successfully'}, 201
+        return {'message': 'You are not authorized to create subjects'}, 403
 
     @auth_required('token')
     def delete(self, subject_id):
+        if not subject_id:
+            return {'message': 'Subject ID is required'}, 400
         subject = Subject.query.get(subject_id)
         if not subject:
             return {'message': 'Subject not found'}, 404
@@ -35,7 +67,9 @@ class SubjectApi(Resource):
             db.session.commit()
             return {'message': 'Subject deleted'}, 200
         return {'message': 'You are not authorized to delete this subject'}, 403
-    
+
+
+# Chapter API
 class ChapterApi(Resource):
     @auth_required('token')
     @marshal_with(chapter_fields)
@@ -45,11 +79,27 @@ class ChapterApi(Resource):
             if not chapter:
                 return {'message': 'Chapter not found'}, 404
             return chapter
-        chapters = Chapter.query.all()
-        return chapters
+        return Chapter.query.all()
 
     @auth_required('token')
+    def post(self):
+        if any(role.name == 'admin' for role in current_user.roles):
+            parser = reqparse.RequestParser()
+            parser.add_argument('name', required=True, help='Name is required')
+            parser.add_argument('description', required=True, help='Description is required')
+            parser.add_argument('subject_id', required=True, help='Subject ID is required', type=int)
+            args = parser.parse_args()
+
+            new_chapter = Chapter(name=args['name'], description=args['description'], subject_id=args['subject_id'])
+            db.session.add(new_chapter)
+            db.session.commit()
+            return {'message': 'Chapter created successfully'}, 201
+        return {'message': 'You are not authorized to create chapters'}, 403
+    
+    @auth_required('token')
     def delete(self, chapter_id):
+        if not chapter_id:
+            return {'message': 'Chapter ID is required'}, 400
         chapter = Chapter.query.get(chapter_id)
         if not chapter:
             return {'message': 'Chapter not found'}, 404
@@ -58,7 +108,9 @@ class ChapterApi(Resource):
             db.session.commit()
             return {'message': 'Chapter deleted'}, 200
         return {'message': 'You are not authorized to delete this chapter'}, 403
-    
+
+
+# Question API
 class QuestionApi(Resource):
     @auth_required('token')
     @marshal_with(question_fields)
@@ -68,11 +120,39 @@ class QuestionApi(Resource):
             if not question:
                 return {'message': 'Question not found'}, 404
             return question
-        questions = Question.query.all()
-        return questions
+        return Question.query.all()
 
     @auth_required('token')
+    def post(self):
+        if any(role.name == 'admin' for role in current_user.roles):
+            parser = reqparse.RequestParser()
+            parser.add_argument('question_statement', required=True, help='Question statement is required')
+            parser.add_argument('option1', required=True, help='Option 1 is required')
+            parser.add_argument('option2', required=True, help='Option 2 is required')
+            parser.add_argument('option3', required=True, help='Option 3 is required')
+            parser.add_argument('option4', required=True, help='Option 4 is required')
+            parser.add_argument('correct_option', required=True, help='Correct option is required', type=int)
+            parser.add_argument('quiz_id', required=True, help='Quiz ID is required', type=int)
+            args = parser.parse_args()
+
+            new_question = Question(
+                question_statement=args['question_statement'],
+                option1=args['option1'],
+                option2=args['option2'],
+                option3=args['option3'],
+                option4=args['option4'],
+                correct_option=args['correct_option'],
+                quiz_id=args['quiz_id'],
+            )
+            db.session.add(new_question)
+            db.session.commit()
+            return {'message': 'Question created successfully'}, 201
+        return {'message': 'You are not authorized to create questions'}, 403
+    
+    @auth_required('token')
     def delete(self, question_id):
+        if not question_id:
+            return {'message': 'Question ID is required'}, 400
         question = Question.query.get(question_id)
         if not question:
             return {'message': 'Question not found'}, 404
@@ -81,7 +161,9 @@ class QuestionApi(Resource):
             db.session.commit()
             return {'message': 'Question deleted'}, 200
         return {'message': 'You are not authorized to delete this question'}, 403
-    
+
+
+# Quiz API
 class QuizApi(Resource):
     @auth_required('token')
     @marshal_with(quiz_fields)
@@ -91,11 +173,27 @@ class QuizApi(Resource):
             if not quiz:
                 return {'message': 'Quiz not found'}, 404
             return quiz
-        quizzes = Quiz.query.all()
-        return quizzes
+        return Quiz.query.all()
 
     @auth_required('token')
+    def post(self):
+        if any(role.name == 'admin' for role in current_user.roles):
+            parser = reqparse.RequestParser()
+            parser.add_argument('chapter_id', required=True, help='Chapter ID is required', type=int)
+            parser.add_argument('remarks', required=True, help='Remarks are required')
+            parser.add_argument('date_of_quiz', required=True, help='Date of quiz is required', type=str)
+            args = parser.parse_args()
+
+            new_quiz = Quiz(chapter_id=args['chapter_id'], remarks=args['remarks'], date_of_quiz=args['date_of_quiz'])
+            db.session.add(new_quiz)
+            db.session.commit()
+            return {'message': 'Quiz created successfully'}, 201
+        return {'message': 'You are not authorized to create quizzes'}, 403
+    
+    @auth_required('token')
     def delete(self, quiz_id):
+        if not quiz_id:
+            return {'message': 'Quiz ID is required'}, 400
         quiz = Quiz.query.get(quiz_id)
         if not quiz:
             return {'message': 'Quiz not found'}, 404
@@ -104,6 +202,8 @@ class QuizApi(Resource):
             db.session.commit()
             return {'message': 'Quiz deleted'}, 200
         return {'message': 'You are not authorized to delete this quiz'}, 403
+
+
     
 class ScoreApi(Resource):
     @auth_required('token')

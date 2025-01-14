@@ -40,6 +40,10 @@ export default {
           console.log("You are logged in");
           const data = await response.json();
           console.log(data);
+          localStorage.setItem("user", JSON.stringify(data));
+          this.$store.commit("setuser");
+          this.$router.push("/user");
+
         } else {
           console.log("Login failed. Status:", response.status);
         }

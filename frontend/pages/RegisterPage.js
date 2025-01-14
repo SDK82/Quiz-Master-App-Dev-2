@@ -20,7 +20,7 @@ export default {
                 <label for="qualification" class="form-label">Qualification</label>
                 <input type="text" class="form-control" id="qualification" v-model="qualification">
             </div>
-            <div class="mb-3">
+                   <div class="mb-3">
                 <label for="dob" class="form-label">Date of Birth</label>
                 <input type="date" class="form-control" id="dob" v-model="dob">
             </div>
@@ -60,7 +60,9 @@ export default {
                 if (response.ok) {
                     console.log("Registration successful");
                     const data = await response.json();
-                    console.log(data);
+                    localStorage.setItem('user', JSON.stringify(data));
+                    this.$router.push('/');
+                    
                 } else {
                     console.log("Registration failed. Status:", response.status);
                 }
