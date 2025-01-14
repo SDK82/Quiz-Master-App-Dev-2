@@ -12,6 +12,7 @@ class LocalDevelopmentConfig(Config):
     SECURITY_PASSWORD_SALT = 'mysecretvalue'
     SECRET_KEY = 'thisismysecretkey'
     SECURITY_TOKEN_AUTHENTICATION_HEADER = 'Authorization-Token'  
+    SECURITY_TOKEN_MAX_AGE = 3600
     
     WTF_CSRF_ENABLED = False
     

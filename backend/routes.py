@@ -46,50 +46,51 @@ def register():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
-    role = data.get('role')
+    role_name = data.get('role')
     full_name = data.get('full_name')
-    dob_str = data.get('dob')  # Expecting format 'DD/MM/YYYY'
+    dob_str = data.get('dob')  # Expecting format 'YYYY-MM-DD'
     qualification = data.get('qualification')
 
-    # Check if all necessary fields are provided
-    if not all([email, password, role, full_name, dob_str, qualification]):
-        return jsonify({'message': 'All fields are required'}), 400
+    # Ensure only "user" role is allowed
+    if role_name != 'user':
+        return jsonify({'message': 'Only "user" role is allowed to register'}), 403
 
-    # Check if role is valid
-    if role not in ['admin', 'user']:
-        return jsonify({'message': 'Invalid role'}), 400
+    # Check if all necessary fields are provided
+    if not all([email, password, full_name, dob_str, qualification]):
+        return jsonify({'message': 'All fields are required'}), 400
 
     # Convert the dob string to a Python date object
     try:
-        dob = datetime.strptime(dob_str, '%d/%m/%Y').date()
+        dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
     except ValueError:
-        return jsonify({'message': 'Invalid date format. Use DD/MM/YYYY'}), 400
+        return jsonify({'message': 'Invalid date format. Use YYYY-MM-DD'}), 400
 
     # Check if user already exists
-    user = datastore.find_user(email=email)
+    user = User.query.filter_by(email=email).first()
     if user:
         return jsonify({'message': 'User already exists'}), 400
 
     try:
-        # Fetch the Role object from the database
-        role = Role.query.filter_by(name=role).first()
+        # Fetch the Role object for "user"
+        role = Role.query.filter_by(name='user').first()
         if not role:
-            return jsonify({'message': f'Role "{role}" does not exist'}), 400
+            return jsonify({'message': 'Role "user" does not exist'}), 400
 
         # Create the user
-        datastore.create_user(
+        new_user = User(
             email=email,
             password=hash_password(password),
             roles=[role],
             active=True,
             full_name=full_name,
-            dob=dob,  # Pass the converted date object
+            dob=dob,
             qualification=qualification,
         )
+        db.session.add(new_user)
         db.session.commit()
 
         return jsonify({'message': 'User created successfully'}), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({'message': f'Error creating user: {str(e)}'}), 400 
-
+        print("Error during user creation:", str(e))
+        return jsonify({'message': f'Error creating user: {str(e)}'}), 400
