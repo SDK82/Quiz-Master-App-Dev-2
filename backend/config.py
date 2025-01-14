@@ -11,6 +11,7 @@ class LocalDevelopmentConfig(Config):
     SECURITY_PASSWORD_HASH = 'bcrypt'
     SECURITY_PASSWORD_SALT = 'mysecretvalue'
     SECRET_KEY = 'thisismysecretkey'
-
+    SECURITY_TOKEN_AUTHENTICATION_HEADER = 'Authorization-Token'  
+    
     WTF_CSRF_ENABLED = False
     

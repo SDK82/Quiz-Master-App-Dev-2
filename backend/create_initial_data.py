@@ -63,18 +63,33 @@ with app.app_context():
         db.session.add_all(questions)
         db.session.commit()
 
+# Create roles
+admin_role = Role.query.filter_by(name='admin').first()
+if not admin_role:
+    admin_role = Role(name='admin', description='Administrator')
+    db.session.add(admin_role)
 
-    # Create roles
-    if (not Role.query.filter_by(name='admin').first()):
-        admin_role = Role(name='admin', description='Administrator')
-        db.session.add(admin_role)
-    if (not Role.query.filter_by(name='user').first()):
-        user_role = Role(name='user', description='User')
-        db.session.add(user_role)
-    db.session.commit()
+user_role = Role.query.filter_by(name='user').first()
+if not user_role:
+    user_role = Role(name='user', description='User')
+    db.session.add(user_role)
 
-    # Create a user
-    user_datastore : SQLAlchemyUserDatastore = app.security.datastore
-    if (not user_datastore.find_user(username='piyushg')):
-        user_datastore.create_user( username='piyushg', password='password', full_name='Piyush Gupta')
-    db.session.commit()
+db.session.commit()
+
+# Create a user
+user_datastore: SQLAlchemyUserDatastore = app.security.datastore
+if not user_datastore.find_user(email='piyush@gmail.com'):
+    user_datastore.create_user(
+        email='piyush@gmail.com',
+        password='password',
+        full_name='Piyush Gupta',
+        roles=[user_role]  # Now user_role is defined
+    )
+if not user_datastore.find_user(email='admin@gmail.com'):
+    user_datastore.create_user(
+        email='admin@gmail.com',
+        password='admin',
+        full_name='Admin',
+        roles=[admin_role]  # Now admin_role is defined
+    )
+db.session.commit()
