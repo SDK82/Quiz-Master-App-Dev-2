@@ -18,7 +18,7 @@ const routes = [
     {path : '/register', component: RegisterPage},
     {path : '/user', component: UserHome},
     { path: "/subject/:subjectId/chapters", component: ChaptersPage },
-    { path: "/chapter/:chapterId/quizzes", component: QuizPage }
+    { path: "/chapter/:chapterId/quizzes", component: QuizPage, props: true },
 ]
 
 const router = new VueRouter({

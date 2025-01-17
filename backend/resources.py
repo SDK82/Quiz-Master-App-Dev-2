@@ -15,7 +15,7 @@ api = Api(prefix='/api')
 
 # Marshaling fields
 subject_fields = {'id': fields.Integer, 'name': fields.String, 'description': fields.String}
-chapter_fields = {'id': fields.Integer, 'name': fields.String, 'description': fields.String, 'subject_id': fields.Integer}
+chapter_fields = {'id': fields.Integer, 'name': fields.String, 'description': fields.String, 'subject_id': fields.Integer, 'subject_name': fields.String}
 question_fields = {
     'id': fields.Integer,
     'question_statement': fields.String,
@@ -26,7 +26,7 @@ question_fields = {
     'correct_option': fields.Integer,
     'quiz_id': fields.Integer,
 }
-quiz_fields = {'id': fields.Integer, 'chapter_id': fields.Integer, 'remarks': fields.String, 'date_of_quiz': fields.DateTime}
+quiz_fields = {'id': fields.Integer, 'chapter_id': fields.Integer, 'remarks': fields.String, 'date_of_quiz': fields.DateTime, 'time_duration': fields.String , 'chapter_name': fields.String}
 score_fields = {'id': fields.Integer, 'quiz_id': fields.Integer, 'user_id': fields.Integer, 'total_score': fields.Float}
 
 # Subject API
@@ -176,13 +176,30 @@ class QuestionApi(Resource):
 class QuizApi(Resource):
     @auth_required('token')
     @marshal_with(quiz_fields)
-    def get(self, quiz_id=None):
-        if quiz_id:
-            quiz = Quiz.query.get(quiz_id)
-            if not quiz:
-                return {'message': 'Quiz not found'}, 404
-            return quiz
-        return Quiz.query.all()
+    def get(self, chapter_id=None):
+        """
+        Retrieve quizzes by chapter ID.
+        """
+        if not chapter_id:
+            return {'message': 'Chapter ID is required'}, 400
+
+        quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
+        if not quizzes:
+            return {'message': 'No quizzes found for the given chapter'}, 404
+
+        return [
+            {
+                "id": quiz.id,
+                "chapter_id": quiz.chapter_id,
+                "chapter_name": quiz.chapter.name,  # Ensure relationship exists in models
+                "date_of_quiz": quiz.date_of_quiz,
+                "time_duration": quiz.time_duration,
+                "remarks": quiz.remarks,
+            }
+            for quiz in quizzes
+        ], 200
+
+
 
     @auth_required('token')
     def post(self):
@@ -244,7 +261,7 @@ class ScoreApi(Resource):
 api.add_resource(SubjectApi, '/subjects', '/subjects/<int:subject_id>')
 api.add_resource(ChapterApi, '/chapters', '/chapters/<int:chapter_id>', '/subjects/<int:id>/chapters')
 api.add_resource(QuestionApi, '/questions', '/questions/<int:question_id>')
-api.add_resource(QuizApi, '/quizzes', '/quizzes/<int:quiz_id>')
+api.add_resource(QuizApi, '/quizzes', '/quizzes/<int:quiz_id>', '/chapter/<int:chapter_id>/quizzes')
 api.add_resource(ScoreApi, '/scores', '/scores/<int:score_id>')
 
 
