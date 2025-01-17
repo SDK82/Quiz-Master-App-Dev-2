@@ -73,12 +73,21 @@ class SubjectApi(Resource):
 class ChapterApi(Resource):
     @auth_required('token')
     @marshal_with(chapter_fields)
-    def get(self, chapter_id=None):
-        if chapter_id:
-            chapter = Chapter.query.get(chapter_id)
-            if not chapter:
-                return {'message': 'Chapter not found'}, 404
-            return chapter
+
+    def get(self, id=None):
+        if id:
+            # New endpoint to get chapters by subject ID
+            chapters = Chapter.query.filter_by(subject_id=id).all()
+            if not chapters:
+                return {'message': 'No chapters found for the given subject'}, 404
+            return [{
+                "id": chapter.id,
+                "name": chapter.name,
+                "description": chapter.description,
+                "subject_name": chapter.subject.name  # Assuming a relationship exists
+            } for chapter in chapters], 200
+
+        # Original functionality for getting all chapters
         return Chapter.query.all()
 
     @auth_required('token')
@@ -227,12 +236,13 @@ class ScoreApi(Resource):
             db.session.commit()
             return {'message': 'Score deleted'}, 200
         return {'message': 'You are not authorized to delete this score'}, 403
+    
 
 
 # Registering the resources
 
 api.add_resource(SubjectApi, '/subjects', '/subjects/<int:subject_id>')
-api.add_resource(ChapterApi, '/chapters', '/chapters/<int:chapter_id>')
+api.add_resource(ChapterApi, '/chapters', '/chapters/<int:chapter_id>', '/subjects/<int:id>/chapters')
 api.add_resource(QuestionApi, '/questions', '/questions/<int:question_id>')
 api.add_resource(QuizApi, '/quizzes', '/quizzes/<int:quiz_id>')
 api.add_resource(ScoreApi, '/scores', '/scores/<int:score_id>')

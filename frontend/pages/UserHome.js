@@ -2,30 +2,40 @@ import SubjectCard from "../components/SubjectCard.js";
 
 export default {
     template: `
-    <div class="container">
-    <div>
+    <div class="container" @click="goToChapters(subject.id)">
         <h1>User Home</h1>
-        <h1>Subjects</h1>
-        <SubjectCard v-for="subject in subjects" :name="subject.name" :description="subject.description" :id="subject.id"/>
-    </div>
+        <h2>Subjects</h2>
+        <div>
+            <SubjectCard 
+                v-for="subject in subjects" 
+                :key="subject.id"
+                :name="subject.name" 
+                :description="subject.description" 
+                :id="subject.id"
+                
+            />
+        </div>
     </div>
     `,
     data() {
         return {
             subjects: []
-        }
+        };
     },
     async mounted() {
-        
-            const response = await fetch(location.origin + '/api/subjects', {
-                headers: {
-                    'Authorization-Token' : this.$store.state.auth_token                },
-            });
-
-            this.subjects = await response.json();
-        
+        const response = await fetch(location.origin + '/api/subjects', {
+            headers: {
+                'Authorization-Token': this.$store.state.auth_token
+            },
+        });
+        this.subjects = await response.json();
+    },
+    methods: {
+        goToChapters(subjectId) {
+            this.$router.push(`/subject/${subjectId}/chapters`);
+        }
     },
     components: {
-        SubjectCard,
+        SubjectCard
     }
-}
+};
