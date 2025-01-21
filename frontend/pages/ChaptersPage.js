@@ -3,9 +3,7 @@ import ChapterCard from "../components/ChapterCard.js";
 export default {
     template: `
     <div class="container my-5">
-        <div class="text-center mb-4">
-            <h1 class="display-4 fw-bold text-dark">Chapters in <span class="text-primary">{{ subjectName }}</span></h1>
-        </div>
+
 
         <div v-if="chapters.length" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             <div 
