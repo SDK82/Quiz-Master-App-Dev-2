@@ -2,6 +2,9 @@ from flask_login import current_user
 from flask_restful import Resource, Api, fields, marshal_with, reqparse
 from backend.models import db, Subject, Chapter, Question, Quiz, Score
 from flask_security import auth_required
+from flask import current_app as app
+
+cache = app.cache
 
 api = Api(prefix='/api')
 
@@ -32,6 +35,7 @@ score_fields = {'id': fields.Integer, 'quiz_id': fields.Integer, 'user_id': fiel
 # Subject API
 class SubjectApi(Resource):
     @auth_required('token')
+    @cache.memoize(timeout=5)
     @marshal_with(subject_fields)
     def get(self, subject_id=None):
         if subject_id:
@@ -72,6 +76,7 @@ class SubjectApi(Resource):
 # Chapter API
 class ChapterApi(Resource):
     @auth_required('token')
+    @cache.memoize(timeout=5)
     @marshal_with(chapter_fields)
 
     def get(self, id=None):
@@ -122,6 +127,7 @@ class ChapterApi(Resource):
 # Question API
 class QuestionApi(Resource):
     @auth_required('token')
+    @cache.memoize(timeout=5)
     @marshal_with(question_fields)
     def get(self, question_id=None):
         if question_id:
@@ -175,6 +181,7 @@ class QuestionApi(Resource):
 # Quiz API
 class QuizApi(Resource):
     @auth_required('token')
+    @cache.memoize(timeout=5)
     @marshal_with(quiz_fields)
     def get(self, chapter_id=None):
         """
@@ -233,6 +240,7 @@ class QuizApi(Resource):
     
 class ScoreApi(Resource):
     @auth_required('token')
+    @cache.memoize(timeout=5)
     @marshal_with(score_fields)
     def get(self, score_id=None):
         if score_id:

@@ -16,15 +16,55 @@ export default {
             <li class="nav-item">
               <router-link to="/" class="nav-link" active-class="active">Home</router-link>
             </li>
-            <li class="nav-item">
+            <!-- Show Login and Register if not logged in -->
+            <li class="nav-item" v-if="!isLoggedIn">
               <router-link to="/login" class="nav-link" active-class="active">Login</router-link>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" v-if="!isLoggedIn">
               <router-link to="/register" class="nav-link" active-class="active">Register</router-link>
+            </li>
+            <!-- Show User Home and Admin Dashboard if logged in -->
+            <li class="nav-item" v-if="isLoggedIn && $store.state.role === 'user'">
+              <router-link to="/user" class="nav-link" />User Home</router-link>
+            </li>
+            <li class="nav-item" v-if="isLoggedIn && $store.state.role === 'admin'">
+              <router-link to="/admin-dashboard" class="nav-link" >Admin Dashboard</router-link>
+            </li>
+            <li class="nav-item" v-if="isLoggedIn && $store.state.role === 'user'">
+              <router-link to="/user" class="nav-link" >Scores</router-link>
+            </li>
+            <li class="nav-item" v-if="isLoggedIn && $store.state.role === 'user'">
+            <router-link to="/user" class="nav-link" >Summary</router-link>
+          </li>
+          <li class="nav-item" v-if="isLoggedIn && $store.state.role === 'admin'">
+          <router-link to="/admin-dashboard" class="nav-link" >Quiz</router-link>
+          </li>
+          <li class="nav-item" v-if="isLoggedIn && $store.state.role === 'admin'">
+          <router-link to="/admin-dashboard" class="nav-link" >Summary</router-link>
+          </li> 
+                 
+            <!-- Show Logout if logged in -->
+            <li class="nav-item" v-if="isLoggedIn">
+              <button class="nav-link btn btn-link" @click="logout">Logout</button>
             </li>
           </ul>
         </div>
       </div>
     </nav>
-  `
-}
+  `,
+  computed: {
+    // Computed property to check if the user is logged in
+    isLoggedIn() {
+      return this.$store.state.loggedIn;
+    }
+  },
+  methods: {
+    logout() {
+      // Call the logout mutation
+      this.$store.commit('logout');
+
+      // Redirect to login page
+      this.$router.push('/login');
+    }
+  }
+};

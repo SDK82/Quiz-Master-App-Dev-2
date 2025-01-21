@@ -2,8 +2,11 @@ from flask import current_app as app, jsonify, render_template, request
 from backend.models import db, User, Role
 from flask_security import auth_required, login_required, current_user
 from flask_security.utils import verify_password, hash_password
+from datetime import datetime
+from backend.celery.tasks import add
 
 datastore = app.security.datastore
+cache = app.cache
 
 @app.get('/')
  # This is a corrected decorator from Flask-Security
@@ -15,6 +18,24 @@ def hello():
 def test():
     return 'Test for only authenticated users'
 
+@app.get('/cache')
+@cache.cached(timeout=5)
+def cache():
+    return{'time': str(datetime.now())}
+
+@app.get('/celery')
+def celery():
+    task = add.delay(10,20)
+    return {'task_id' : task.id}
+
+@app.get('/get-celery-data/<int:id>')
+def getData(id):
+    result = add.AsyncResult(id)
+    if result.ready():
+        return {'result': result.result}
+    else:
+        return {'status': 'Task not ready'}
+    
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -39,7 +60,6 @@ def login():
 
     return jsonify({'message': 'Invalid credentials'}), 401
 
-from datetime import datetime
 
 @app.route('/register', methods=['POST'])
 def register():
