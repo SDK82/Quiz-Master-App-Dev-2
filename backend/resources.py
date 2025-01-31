@@ -3,6 +3,7 @@ from flask_restful import Resource, Api, fields, marshal_with, reqparse
 from backend.models import db, Subject, Chapter, Question, Quiz, Score
 from flask_security import auth_required
 from flask import current_app as app
+from datetime import datetime
 
 cache = app.cache
 
@@ -18,7 +19,7 @@ api = Api(prefix='/api')
 
 # Marshaling fields
 subject_fields = {'id': fields.Integer, 'name': fields.String, 'description': fields.String}
-chapter_fields = {'id': fields.Integer, 'name': fields.String, 'description': fields.String, 'subject_id': fields.Integer, 'subject_name': fields.String}
+chapter_fields = {'id': fields.Integer, 'name': fields.String, 'description': fields.String, 'subject_id': fields.Integer, 'subject_name': fields.String,    'no_of_questions': fields.Integer}
 question_fields = {
     'id': fields.Integer,
     'question_statement': fields.String,
@@ -89,7 +90,9 @@ class ChapterApi(Resource):
                 "id": chapter.id,
                 "name": chapter.name,
                 "description": chapter.description,
-                "subject_name": chapter.subject.name  # Assuming a relationship exists
+                "subject_name": chapter.subject.name,  # Assuming a relationship exists
+                "no_of_questions": len(chapter.quizzes)  # ✅ Add question count
+
             } for chapter in chapters], 200
 
         # Original functionality for getting all chapters
@@ -263,12 +266,21 @@ class ScoreApi(Resource):
         return {'message': 'You are not authorized to delete this score'}, 403
     
 
+class QuizQuestionsApi(Resource):
+    @auth_required('token')
+    @cache.memoize(timeout=5)
+    @marshal_with(question_fields)
+    def get(self, quiz_id):
+        questions = Question.query.filter_by(quiz_id=quiz_id).all()
+        if not questions:
+            return {'message': 'No questions found for this quiz'}, 404
+        return questions, 200
 
 # Registering the resources
 
 api.add_resource(SubjectApi, '/subjects', '/subjects/<int:subject_id>')
 api.add_resource(ChapterApi, '/chapters', '/chapters/<int:chapter_id>', '/subjects/<int:id>/chapters')
-api.add_resource(QuestionApi, '/questions', '/questions/<int:question_id>')
+api.add_resource(QuizQuestionsApi, '/quizzes/<int:quiz_id>/questions')
 api.add_resource(QuizApi, '/quizzes', '/quizzes/<int:quiz_id>', '/chapter/<int:chapter_id>/quizzes')
 api.add_resource(ScoreApi, '/scores', '/scores/<int:score_id>')
 
