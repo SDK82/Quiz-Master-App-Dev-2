@@ -1,4 +1,3 @@
-
 export default {
     template: `
     <div class="container my-5">
@@ -12,10 +11,24 @@ export default {
                 style="cursor: pointer;">
                 <div class="card h-100 shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title text-primary">{{ subject.name }}</h5>
-                        <p class="card-text text-secondary">
-                            {{ subject.description || 'No description available.' }}
-                        </p>
+                        <h5 class="card-title text-primary text-center" >{{ subject.name }}</h5>
+                        <table class="table table-hover">
+                            <tr>
+                                <th>Chapter Name</th>
+                                <th>No of Questions</th>
+                                <th>Actions</th>
+                            </tr>
+                            <tr v-for="chapter in subject.chapters" :key="chapter.id">
+                                <td>{{ chapter.name }}</td>
+                                <td>{{ chapter.no_of_questions }}</td>
+                                <td>
+                                    <button class="btn btn-outline-primary" @click="goToQuizzes(chapter.id)">View Quizzes</button>
+                                    <button class="btn btn-outline-danger" @click="deleteChapter(chapter.id)">Delete</button>
+                                </td>
+
+                                <td>{{ subject.description }}</td>
+                            </tr>
+                      </table>
                     </div>
                     <div class="card-footer bg-white">
                         <button class="btn btn-outline-primary w-50" @click="goToChapters(subject.id)" 
@@ -81,6 +94,11 @@ export default {
                     },
                     body: JSON.stringify(this.newSubject)
                 });
+                // Check if the subject name already exists before adding
+                if (this.subjects.some(subject => subject.name.toLowerCase() === this.newSubject.name.toLowerCase())) {
+                    alert('Subject with the same name already exists');
+                    return;
+                }
 
                 if (!response.ok) throw new Error('Failed to add subject');
 

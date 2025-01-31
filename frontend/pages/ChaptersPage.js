@@ -1,13 +1,13 @@
 import ChapterCard from "../components/ChapterCard.js";
 
 export default {
-    template: `
+  template: `
     <div class="container my-5">
-        <div class="text-center mb-4">
+        <div v-if="chapters.length" class="text-center mb-4">
             <h1 class="display-4 fw-bold text-dark">Chapters in <span class="text-primary">{{ subjectName }}</span></h1>
-        </div>
+        
 
-        <div v-if="chapters.length" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div  class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             <div 
                 class="col chapter-card" 
                 v-for="chapter in chapters" 
@@ -27,14 +27,16 @@ export default {
                 </div>
             </div>
         </div>
+        </div>
 
         <div v-else class="text-center mt-5">
             <p class="lead text-muted">No chapters found for this subject.</p>
+            <button class="btn btn-primary" @click="goBack">Go Back</button>
         </div>
     </div>
 `,
 
-style: `
+  style: `
 .chapter-card {
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
@@ -48,38 +50,43 @@ style: `
     flex-direction: column;
     justify-content: space-between;
 }
-`
+`,
 
-    ,
-    data() {
-        return {
-            subjectName: "",
-            chapters: []
-        };
-    },
-    async mounted() {
-        const subjectId = this.$route.params.subjectId;
-        const response = await fetch(`${location.origin}/api/subjects/${subjectId}/chapters`, {
-            headers: {
-                'Authorization-Token': this.$store.state.auth_token
-            },
-        });
-        const data = await response.json();
-        
-        if (data.length > 0 && data[0].subject_name) {
-            this.subjectName = data[0].subject_name; // Assuming subject_name is available
-        } else {
-            this.subjectName = "Unknown Subject";
-        }
+  data() {
+    return {
+      subjectName: "",
+      chapters: [],
+    };
+  },
+  async mounted() {
+    const subjectId = this.$route.params.subjectId;
+    const response = await fetch(
+      `${location.origin}/api/subjects/${subjectId}/chapters`,
+      {
+        headers: {
+          "Authorization-Token": this.$store.state.auth_token,
+        },
+      }
+    );
+    const data = await response.json();
 
-        this.chapters = data;
-    },
-    methods: {
-        goToQuizzes(chapterId) {
-            this.$router.push(`/chapter/${chapterId}/quizzes`);
-        }
-    },
-    components: {
-        ChapterCard
+    if (data.length > 0 && data[0].subject_name) {
+      this.subjectName = data[0].subject_name; // Assuming subject_name is available
+    } else {
+      this.subjectName = "Unknown Subject";
     }
+
+    this.chapters = data;
+  },
+  methods: {
+    goToQuizzes(chapterId) {
+      this.$router.push(`/chapter/${chapterId}/quizzes`);
+    },
+    goBack() {
+      this.$router.go(-1);
+    }
+  },
+  components: {
+    ChapterCard,
+  },
 };
