@@ -11,8 +11,8 @@ import UserHome from '../pages/UserHome.js';
 import ChaptersPage from '../pages/ChaptersPage.js';
 import QuizPage from '../pages/QuizPage.js';
 import AdminDashboard from '../pages/AdminDashboard.js';
-import TestPage from '../pages/TestPage.js';
 import ExamPage from '../pages/ExamPage.js';
+import ScorePage from '../pages/ScorePage.js';
 
 import store from './store.js';
 
@@ -26,6 +26,7 @@ const routes = [
     { path: "/chapter/:chapterId/quizzes", component: QuizPage, props: true, meta: {requiresLogin: true}  },
     {path : "/admin-dashboard", component: AdminDashboard, meta: {requiresLogin: true, role: 'admin'}},
     {path: '/quiz/:quizId', component: ExamPage ,meta: {requiresLogin: true}, props: true},
+    {path: '/scores', component: ScorePage, meta: {requiresLogin: true}},
 ]
 
 const router = new VueRouter({

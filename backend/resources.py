@@ -2,7 +2,7 @@ from flask_login import current_user
 from flask_restful import Resource, Api, fields, marshal_with, reqparse
 from backend.models import db, Subject, Chapter, Question, Quiz, Score
 from flask_security import auth_required
-from flask import current_app as app
+from flask import current_app as app, request
 from datetime import datetime
 
 cache = app.cache
@@ -245,14 +245,13 @@ class ScoreApi(Resource):
     @auth_required('token')
     @cache.memoize(timeout=5)
     @marshal_with(score_fields)
-    def get(self, score_id=None):
-        if score_id:
-            score = Score.query.get(score_id)
-            if not score:
-                return {'message': 'Score not found'}, 404
-            return score
-        scores = Score.query.all()
-        return scores
+    def get(self, user_id):
+        scores = Score.query.filter_by(user_id=user_id).all()
+        if not scores:
+            return {'message': 'No scores found for this user'}, 404
+        return scores, 200
+
+    
 
     @auth_required('token')
     def delete(self, score_id):
@@ -264,6 +263,40 @@ class ScoreApi(Resource):
             db.session.commit()
             return {'message': 'Score deleted'}, 200
         return {'message': 'You are not authorized to delete this score'}, 403
+
+    @auth_required('token')
+    def post(self):
+        if not request.is_json:
+            return {'message': 'Request body must be JSON'}, 400
+
+        data = request.get_json()
+        print("Received data:", data)  # Debugging
+
+        try:
+            # Convert quiz_id and user_id to integers
+            quiz_id = int(data.get('quiz_id'))
+            user_id = int(data.get('user_id'))
+            total_score = float(data.get('total_score'))  # Ensure float
+
+            # Validate required fields
+            if quiz_id is None or user_id is None or total_score is None:
+                return {'message': 'Missing required fields'}, 400
+
+            # Create and save new score
+            new_score = Score(quiz_id=quiz_id, user_id=user_id, total_score=total_score)
+            db.session.add(new_score)
+            db.session.commit()
+
+            return {'message': 'Score saved successfully!', 'score_id': new_score.id}, 201
+
+        except ValueError as e:
+            print("Error converting data types:", str(e))  # Debugging
+            return {'message': 'Invalid data format'}, 400
+        except Exception as e:
+            db.session.rollback()
+            print("Error saving score:", str(e))  # Debugging
+            return {'message': 'An error occurred while saving the score'}, 500
+
     
 
 class QuizQuestionsApi(Resource):
@@ -275,6 +308,8 @@ class QuizQuestionsApi(Resource):
         if not questions:
             return {'message': 'No questions found for this quiz'}, 404
         return questions, 200
+    
+    
 
 # Registering the resources
 
@@ -282,7 +317,7 @@ api.add_resource(SubjectApi, '/subjects', '/subjects/<int:subject_id>')
 api.add_resource(ChapterApi, '/chapters', '/chapters/<int:chapter_id>', '/subjects/<int:id>/chapters')
 api.add_resource(QuizQuestionsApi, '/quizzes/<int:quiz_id>/questions')
 api.add_resource(QuizApi, '/quizzes', '/quizzes/<int:quiz_id>', '/chapter/<int:chapter_id>/quizzes')
-api.add_resource(ScoreApi, '/scores', '/scores/<int:score_id>')
+api.add_resource(ScoreApi, '/scores', '/scores/<int:user_id>')
 
 
 
