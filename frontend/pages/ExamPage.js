@@ -13,6 +13,8 @@ export default {
             <div class="col-md-3">
                 <div class="card shadow-sm p-3">
                     <h5 class="text-center">Questions</h5>
+                    <p class="card-text"><strong>Duration:</strong> {{ quiz.time_duration }} minutes</p>
+
                     <div class="d-flex flex-wrap">
                         <button
                             v-for="(question, index) in questions"
@@ -65,13 +67,21 @@ export default {
                                 Previous
                             </button>
                             <button
+                            class="btn btn-warning"
+                            @click="skipQuestion"
+                            :disabled="currentQuestionIndex === questions.length - 1"
+                            >
+                            Skip
+                            </button>
+                        
+                            <button
                                 class="btn btn-primary"
                                 @click="nextQuestion"
                                 :disabled="selectedOption === null"
                             >
                                 {{ currentQuestionIndex === questions.length - 1 ? 'Submit Quiz' : 'Next' }}
                             </button>
-                        </div>
+
                     </div>
 
 <!-- Quiz Completion Message -->
@@ -163,6 +173,11 @@ export default {
         previousQuestion() {
             if (this.currentQuestionIndex > 0) {
                 this.currentQuestionIndex--;
+            }
+        },
+        skipQuestion() {
+            if (this.currentQuestionIndex < this.questions.length - 1) {
+                this.currentQuestionIndex++;
             }
         },
         goToQuestion(index) {

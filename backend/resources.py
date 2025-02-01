@@ -29,6 +29,7 @@ question_fields = {
     'option4': fields.String,
     'correct_option': fields.Integer,
     'quiz_id': fields.Integer,
+    'time_duration': fields.String,
 }
 quiz_fields = {'id': fields.Integer, 'chapter_id': fields.Integer, 'remarks': fields.String, 'date_of_quiz': fields.DateTime, 'time_duration': fields.String , 'chapter_name': fields.String}
 score_fields = {'id': fields.Integer, 'quiz_id': fields.Integer, 'user_id': fields.Integer, 'total_score': fields.Float}
@@ -305,9 +306,11 @@ class QuizQuestionsApi(Resource):
     @marshal_with(question_fields)
     def get(self, quiz_id):
         questions = Question.query.filter_by(quiz_id=quiz_id).all()
+        quiz = Quiz.query.get(quiz_id)
         if not questions:
             return {'message': 'No questions found for this quiz'}, 404
-        return questions, 200
+        return questions,quiz, 200
+    
     
     
 
