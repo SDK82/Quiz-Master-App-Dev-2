@@ -15,7 +15,7 @@ export default {
     <input type="password" class="form-control" id="exampleInputPassword1" v-model="password">
   </div>
 
-  <button @click="submitLogin" class="btn btn-primary">Submit</button>
+  <button @click="submitLogin" class="btn btn-primary">Login</button>
   
 </form>
     </div>

@@ -13,6 +13,9 @@ import QuizPage from '../pages/QuizPage.js';
 import AdminDashboard from '../pages/AdminDashboard.js';
 import ExamPage from '../pages/ExamPage.js';
 import ScorePage from '../pages/ScorePage.js';
+import AdminChapter from '../pages/AdminChapter.js';
+import CreateQuiz from '../pages/CreateQuiz.js';
+import AdminQuizpage from '../pages/AdminQuizpage.js';
 
 import store from './store.js';
 
@@ -27,6 +30,10 @@ const routes = [
     {path : "/admin-dashboard", component: AdminDashboard, meta: {requiresLogin: true, role: 'admin'}},
     {path: '/quiz/:quizId', component: ExamPage ,meta: {requiresLogin: true}, props: true},
     {path: '/scores', component: ScorePage, meta: {requiresLogin: true}},
+    {path: '/admin/:subjectId/chapters', component: AdminChapter, meta: {requiresLogin: true, role: 'admin'}},
+    {path: '/admin/create-quiz', component: CreateQuiz, meta: {requiresLogin: true, role: 'admin'}},
+    {path : '/admin/quizzes/:chapterId', component: AdminQuizpage, meta: {requiresLogin: true, role: 'admin'}},
+    
 ]
 
 const router = new VueRouter({

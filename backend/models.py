@@ -13,6 +13,9 @@ class Role(db.Model, RoleMixin):
     name = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(255))
 
+    def __repr__(self):
+        return f"<Role {self.name}>"
+
 # User Table
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
@@ -30,6 +33,9 @@ class User(db.Model, UserMixin):
     scores = db.relationship('Score', backref='user', lazy=True)
     roles = db.relationship('Role', secondary='user_roles', backref=db.backref('users', lazy='dynamic'))
 
+    def __repr__(self):
+        return f"<User {self.email}>"
+    
 # Association Table for User and Role
 class UserRoles(db.Model):
     __tablename__ = 'user_roles'
@@ -47,6 +53,10 @@ class Subject(db.Model):
     # Relationships
     chapters = db.relationship('Chapter', backref='subject', lazy=True, cascade="all, delete-orphan")
 
+    def __repr__(self):
+        return f"<Subject {self.name}>"
+
+
 # Chapter Table
 class Chapter(db.Model):
     __tablename__ = 'chapters'
@@ -58,19 +68,25 @@ class Chapter(db.Model):
     # Relationships
     quizzes = db.relationship('Quiz', backref='chapter', lazy=True, cascade="all, delete-orphan")
 
+    def __repr__(self):
+        return f"<Chapter {self.name}>"
+    
 # Quiz Table
 class Quiz(db.Model):
     __tablename__ = 'quizzes'
     id = db.Column(db.Integer, primary_key=True)
     chapter_id = db.Column(db.Integer, db.ForeignKey('chapters.id'), nullable=False)
     date_of_quiz = db.Column(db.DateTime, nullable=False)
-    time_duration = db.Column(db.String(10))
+    time_duration = db.Column(db.Integer)  # Store time in seconds
     remarks = db.Column(db.Text)
 
     # Relationships
-    questions = db.relationship('Question', backref='quiz', lazy=True, cascade="all, delete-orphan")
+    questions = db.relationship('Question', backref='quiz', lazy=True, cascade="all, delete")
     scores = db.relationship('Score', backref='quiz', lazy=True, cascade="all, delete-orphan")
 
+    def __repr__(self):
+        return f"<Quiz {self.id}>"
+    
 # Question Table
 class Question(db.Model):
     __tablename__ = 'questions'
@@ -83,6 +99,11 @@ class Question(db.Model):
     option4 = db.Column(db.String(255), nullable=False)
     correct_option = db.Column(db.Integer, nullable=False)
 
+    quiz_id = db.Column(db.Integer, db.ForeignKey('quizzes.id', ondelete='CASCADE'), nullable=False)
+
+    def __repr__(self):
+        return f"<Question {self.id}>"
+    
 # Score Table
 class Score(db.Model):
     __tablename__ = 'scores'
@@ -92,6 +113,9 @@ class Score(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     total_score = db.Column(db.Float, nullable=False)
 
+    def __repr__(self):
+        return f"<Score {self.id}>"
+    
 # Initialize the database
 def init_db(app):
     db.init_app(app)

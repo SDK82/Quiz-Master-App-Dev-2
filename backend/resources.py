@@ -86,7 +86,7 @@ class ChapterApi(Resource):
             # New endpoint to get chapters by subject ID
             chapters = Chapter.query.filter_by(subject_id=id).all()
             if not chapters:
-                return {'message': 'No chapters found for the given subject'}, 404
+                return [], 200 
             return [{
                 "id": chapter.id,
                 "name": chapter.name,
@@ -183,49 +183,59 @@ class QuestionApi(Resource):
 
 
 # Quiz API
+
 class QuizApi(Resource):
+    # ... other methods
+
     @auth_required('token')
     @cache.memoize(timeout=5)
-    @marshal_with(quiz_fields)
-    def get(self, chapter_id=None):
-        """
-        Retrieve quizzes by chapter ID.
-        """
-        if not chapter_id:
-            return {'message': 'Chapter ID is required'}, 400
+    @marshal_with(quiz_fields) # Use the updated quiz_fields
+    def get(self, chapter_id=None, quiz_id=None):  # Add quiz_id parameter
+        if quiz_id:
+            quiz = Quiz.query.get_or_404(quiz_id)  # Handle quiz not found
+            return quiz  # Return single quiz object
+        elif chapter_id:
 
-        quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
-        if not quizzes:
-            return {'message': 'No quizzes found for the given chapter'}, 404
+            quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
+            if not quizzes:
+                return {'message': 'No quizzes found for the given chapter'}, 404
 
-        return [
-            {
-                "id": quiz.id,
-                "chapter_id": quiz.chapter_id,
-                "chapter_name": quiz.chapter.name,  # Ensure relationship exists in models
-                "date_of_quiz": quiz.date_of_quiz,
-                "time_duration": quiz.time_duration,
-                "remarks": quiz.remarks,
-            }
-            for quiz in quizzes
-        ], 200
-
+            return [
+                {
+                    "id": quiz.id,
+                    "chapter_id": quiz.chapter_id,
+                    "chapter_name": quiz.chapter.name,
+                    "date_of_quiz": quiz.date_of_quiz,
+                    "time_duration": quiz.time_duration, # time_duration is here
+                    "remarks": quiz.remarks,
+                }
+                for quiz in quizzes
+            ], 200
+   
 
 
     @auth_required('token')
     def post(self):
-        if any(role.name == 'admin' for role in current_user.roles):
-            parser = reqparse.RequestParser()
-            parser.add_argument('chapter_id', required=True, help='Chapter ID is required', type=int)
-            parser.add_argument('remarks', required=True, help='Remarks are required')
-            parser.add_argument('date_of_quiz', required=True, help='Date of quiz is required', type=str)
-            args = parser.parse_args()
+        data = request.get_json()
 
-            new_quiz = Quiz(chapter_id=args['chapter_id'], remarks=args['remarks'], date_of_quiz=args['date_of_quiz'])
+        try:
+            # Convert date_of_quiz to datetime object
+            date_of_quiz = datetime.strptime(data['date_of_quiz'], "%Y-%m-%d %H:%M:%S")
+
+            new_quiz = Quiz(
+                chapter_id=data['chapter_id'],
+                date_of_quiz=date_of_quiz,
+                time_duration=data['time_duration'],
+                remarks=data['remarks']
+            )
+
             db.session.add(new_quiz)
             db.session.commit()
-            return {'message': 'Quiz created successfully'}, 201
-        return {'message': 'You are not authorized to create quizzes'}, 403
+
+            return {"message": "Quiz created successfully", "id": new_quiz.id}, 201
+        except Exception as e:
+            db.session.rollback()
+            return {"message": f"Error creating quiz: {str(e)}"}, 400
     
     @auth_required('token')
     def delete(self, quiz_id):
@@ -306,10 +316,27 @@ class QuizQuestionsApi(Resource):
     @marshal_with(question_fields)
     def get(self, quiz_id):
         questions = Question.query.filter_by(quiz_id=quiz_id).all()
-        quiz = Quiz.query.get(quiz_id)
         if not questions:
             return {'message': 'No questions found for this quiz'}, 404
-        return questions,quiz, 200
+        return questions, 200
+    @auth_required('token')
+    def post(self):
+        data = request.get_json()
+
+        new_question = Question(
+            quiz_id=data["quiz_id"],  # Ensure the frontend sends this!
+            question_statement=data["question_statement"],
+            option1=data["option1"],
+            option2=data["option2"],
+            option3=data["option3"],
+            option4=data["option4"],
+            correct_option=data["correct_option"],
+        )
+
+        db.session.add(new_question)
+        db.session.commit()
+
+        return {"message": "Question added successfully!", "id": new_question.id}, 201
     
     
     
@@ -318,9 +345,10 @@ class QuizQuestionsApi(Resource):
 
 api.add_resource(SubjectApi, '/subjects', '/subjects/<int:subject_id>')
 api.add_resource(ChapterApi, '/chapters', '/chapters/<int:chapter_id>', '/subjects/<int:id>/chapters')
-api.add_resource(QuizQuestionsApi, '/quizzes/<int:quiz_id>/questions')
+api.add_resource(QuizQuestionsApi, '/quizzes/<int:quiz_id>/questions','/questions')
 api.add_resource(QuizApi, '/quizzes', '/quizzes/<int:quiz_id>', '/chapter/<int:chapter_id>/quizzes')
 api.add_resource(ScoreApi, '/scores', '/scores/<int:user_id>')
+
 
 
 

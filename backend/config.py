@@ -11,7 +11,8 @@ class LocalDevelopmentConfig(Config):
     SECURITY_PASSWORD_HASH = 'bcrypt'
     SECURITY_PASSWORD_SALT = 'mysecretvalue'
     SECRET_KEY = 'thisismysecretkey'
-    SECURITY_TOKEN_AUTHENTICATION_HEADER = 'Authorization-Token'  
+    SECURITY_TOKEN_AUTHENTICATION_HEADER = 'Authorization-Token'
+    SECURITY_TOKEN_MAX_AGE = 3600  # Token expiration time in seconds
 
     # Cache configuration
     CACHE_TYPE = 'RedisCache'

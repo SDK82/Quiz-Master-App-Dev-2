@@ -7,34 +7,40 @@ export default {
         <h2 class="text-center mb-5" style="font-size: 2rem; color: #2980b9;">Subjects</h2>
 
         <div class="row row-cols-2 row-cols-md-4 row-cols-lg-3 g-2 h-200">
-            <div class="col" v-for="subject in subjects" :key="subject.id" @click="goToChapters(subject.id)" 
-                style="cursor: pointer;">
+            <div class="col" v-for="subject in subjects" :key="subject.id" style="cursor: pointer;">
                 <div class="card h-100 shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title text-primary text-center" >{{ subject.name }}</h5>
+                        <h5 class="card-title text-primary text-center">{{ subject.name }}</h5>
+                        <p class="card-text text-muted text-center">{{ subject.description }}</p>
                         <table class="table table-hover">
                             <tr>
                                 <th>Chapter Name</th>
-                                <th>No of Questions</th>
+                                <th>No of Quizzes</th>
                                 <th>Actions</th>
                             </tr>
-                            <tr v-for="chapter in subject.chapters" :key="chapter.id">
+                            <tr v-for="chapter in getChaptersForSubject(subject.id)" :key="chapter.id">
                                 <td>{{ chapter.name }}</td>
                                 <td>{{ chapter.no_of_questions }}</td>
                                 <td>
-                                    <button class="btn btn-outline-primary" @click="goToQuizzes(chapter.id)">View Quizzes</button>
-                                    <button class="btn btn-outline-danger" @click="deleteChapter(chapter.id)">Delete</button>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm btn-outline-primary" @click="goToQuizzes(chapter.id)">
+                                            View Quizzes
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" @click="deleteChapter(chapter.id, subject.id)">
+                                            Delete
+                                        </button>
+                                    </div>
                                 </td>
-
-                                <td>{{ subject.description }}</td>
                             </tr>
-                      </table>
+                        </table>
                     </div>
-                    <div class="card-footer bg-white">
-                        <button class="btn btn-outline-primary w-50" @click="goToChapters(subject.id)" 
-                        >View Chapters</button>
-                        <button class="btn btn-outline-danger w-50" @click="deleteSubject(subject.id)">Delete</button>
-
+                    <div class="card-footer bg-white d-flex gap-2">
+                        <button class="btn btn-outline-primary w-50" @click="goToChapters(subject.id)">
+                            View Chapters
+                        </button>
+                        <button class="btn btn-outline-danger w-50" @click="deleteSubject(subject.id)">
+                            Delete
+                        </button>
                     </div>
                 </div>
             </div>
@@ -64,13 +70,16 @@ export default {
                 </form>
             </div>
         </div>
+
+        <button class="btn btn-primary" @click="createQuiz">Create Quiz</button>
     </div>
     `,
     data() {
         return {
             subjects: [],
+            chapters: {}, // Store chapters per subject
             showAddSubjectModal: false,
-            newSubject: { name: '', description: '' }
+            newSubject: { name: '', description: '' },
         };
     },
     async mounted() {
@@ -82,6 +91,58 @@ export default {
                 headers: { 'Authorization-Token': this.$store.state.auth_token }
             });
             this.subjects = await response.json();
+
+            // Fetch chapters for all subjects
+            for (let subject of this.subjects) {
+                await this.fetchChapters(subject.id);
+            }
+        },
+
+        async fetchChapters(subjectId) {
+            const response = await fetch(`${location.origin}/api/subjects/${subjectId}/chapters`, {
+                headers: { 'Authorization-Token': this.$store.state.auth_token }
+            });
+            this.$set(this.chapters, subjectId, await response.json());
+        },
+
+        getChaptersForSubject(subjectId) {
+            return this.chapters[subjectId] || [];
+        },
+
+        async deleteSubject(subjectId) {
+            if (!confirm("Are you sure you want to delete this subject?")) return;
+
+            try {
+                const response = await fetch(`${location.origin}/api/subjects/${subjectId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization-Token': this.$store.state.auth_token }
+                });
+
+                if (!response.ok) throw new Error('Failed to delete subject');
+
+                await this.fetchSubjects();
+            } catch (error) {
+                console.error(error);
+                alert('Error deleting subject');
+            }
+        },
+
+        async deleteChapter(chapterId, subjectId) {
+            if (!confirm("Are you sure you want to delete this chapter?")) return;
+
+            try {
+                const response = await fetch(`${location.origin}/api/chapters/${chapterId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization-Token': this.$store.state.auth_token }
+                });
+
+                if (!response.ok) throw new Error('Failed to delete chapter');
+
+                await this.fetchChapters(subjectId);
+            } catch (error) {
+                console.error(error);
+                alert('Error deleting chapter');
+            }
         },
 
         async addSubject() {
@@ -94,11 +155,6 @@ export default {
                     },
                     body: JSON.stringify(this.newSubject)
                 });
-                // Check if the subject name already exists before adding
-                if (this.subjects.some(subject => subject.name.toLowerCase() === this.newSubject.name.toLowerCase())) {
-                    alert('Subject with the same name already exists');
-                    return;
-                }
 
                 if (!response.ok) throw new Error('Failed to add subject');
 
@@ -110,28 +166,17 @@ export default {
                 alert('Error adding subject');
             }
         },
-        goToChapters(subjectId) {
-            this.$router.push(`/subject/${subjectId}/chapters`);
+
+        goToQuizzes(chapterId) {
+            this.$router.push(`/chapter/${chapterId}/quizzes`);
         },
-         // Delete a subject
-         async deleteSubject(subjectId) {
-            if (!confirm("Are you sure you want to delete this subject?")) return;
 
-            try {
-                const response = await fetch(`${location.origin}/api/subjects/${subjectId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization-Token': this.$store.state.auth_token
-                    }
-                });
+        goToChapters(subjectId) {
+            this.$router.push(`/admin/${subjectId}/chapters`);
+        },
 
-                if (!response.ok) throw new Error('Failed to delete subject');
-
-                await this.fetchSubjects(); // Refresh subject list after deletion
-            } catch (error) {
-                console.error(error);
-                alert('Error deleting subject');
-            }
+        createQuiz() {
+            this.$router.push('/admin/create-quiz');
         }
     }
 };
