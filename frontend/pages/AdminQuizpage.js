@@ -10,6 +10,7 @@ export default {
                     <tr>
                         <th>#</th>
                         <th>Chapter</th>
+                        <th>No of Questions</th>
                         <th>Date</th>
                         <th>Time Duration</th>
                         <th>Remarks</th>
@@ -20,6 +21,7 @@ export default {
                     <tr v-for="(quiz, index) in quizzes" :key="quiz.id">
                         <td>{{ index + 1 }}</td>
                         <td>{{ quiz.chapter_name }}</td>
+                        <td>{{ quiz.no_of_questions }}</td>
                         <td>{{ formatDate(quiz.date_of_quiz) }}</td>
                         <td>{{ quiz.time_duration }}</td>
                         <td>{{ quiz.remarks }}</td>
@@ -44,6 +46,7 @@ export default {
     },
     async mounted() {
         await this.fetchQuizzes();
+        console.log("Fetched quizzes:", );  // Debugging 
     },
 
 
@@ -90,20 +93,20 @@ export default {
                 this.deleteQuiz(quizId);
             }
         },
-async deleteQuiz(quizId) {
-    try {
-        await fetch(`${location.origin}/api/quizzes/${quizId}`, {
-            method: "DELETE",
-            headers: { "Authorization-Token": this.$store.state.auth_token },
-        });
+        async deleteQuiz(quizId) {
+            try {
+                await fetch(`${location.origin}/api/quizzes/${quizId}`, {
+                    method: "DELETE",
+                    headers: { "Authorization-Token": this.$store.state.auth_token },
+                });
 
-        // ✅ Fetch updated quizzes after deleting one
-        await this.fetchQuizzes();
-        
-    } catch (error) {
-        console.error("Error deleting quiz:", error);
-    }
+                // ✅ Fetch updated quizzes after deleting one
+                await this.fetchQuizzes();
+                
+            } catch (error) {
+                console.error("Error deleting quiz:", error);
+            }
 
-    },
+            },
 }
 };

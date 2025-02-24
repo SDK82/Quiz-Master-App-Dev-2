@@ -16,6 +16,7 @@ import ScorePage from '../pages/ScorePage.js';
 import AdminChapter from '../pages/AdminChapter.js';
 import CreateQuiz from '../pages/CreateQuiz.js';
 import AdminQuizpage from '../pages/AdminQuizpage.js';
+import ScoreSummary from '../pages/ScoreSummary.js';
 
 import store from './store.js';
 
@@ -33,6 +34,7 @@ const routes = [
     {path: '/admin/:subjectId/chapters', component: AdminChapter, meta: {requiresLogin: true, role: 'admin'}},
     {path: '/admin/create-quiz', component: CreateQuiz, meta: {requiresLogin: true, role: 'admin'}},
     {path : '/admin/quizzes/:chapterId', component: AdminQuizpage, meta: {requiresLogin: true, role: 'admin'}},
+    {path : '/score-summary', component: ScoreSummary, meta: {requiresLogin: true}},
     
 ]
 

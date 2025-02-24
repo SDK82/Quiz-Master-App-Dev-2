@@ -26,7 +26,7 @@ class User(db.Model, UserMixin):
     qualification = db.Column(db.String(100))
     dob = db.Column(db.Date)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
+    fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False) #default=lambda: str(uuid.uuid4()
     active = db.Column(db.Boolean, default=True)
 
     # Relationships
@@ -91,15 +91,13 @@ class Quiz(db.Model):
 class Question(db.Model):
     __tablename__ = 'questions'
     id = db.Column(db.Integer, primary_key=True)
-    quiz_id = db.Column(db.Integer, db.ForeignKey('quizzes.id'), nullable=False)
+    quiz_id = db.Column(db.Integer, db.ForeignKey('quizzes.id', ondelete='CASCADE'), nullable=False)
     question_statement = db.Column(db.Text, nullable=False)
     option1 = db.Column(db.String(255), nullable=False)
     option2 = db.Column(db.String(255), nullable=False)
     option3 = db.Column(db.String(255), nullable=False)
     option4 = db.Column(db.String(255), nullable=False)
     correct_option = db.Column(db.Integer, nullable=False)
-
-    quiz_id = db.Column(db.Integer, db.ForeignKey('quizzes.id', ondelete='CASCADE'), nullable=False)
 
     def __repr__(self):
         return f"<Question {self.id}>"
@@ -111,7 +109,9 @@ class Score(db.Model):
     quiz_id = db.Column(db.Integer, db.ForeignKey('quizzes.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    time_taken = db.Column(db.Integer, nullable=False)  # Time in seconds
     total_score = db.Column(db.Float, nullable=False)
+    max_score = db.Column(db.Integer, nullable=False)  
 
     def __repr__(self):
         return f"<Score {self.id}>"

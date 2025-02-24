@@ -12,7 +12,7 @@ export default {
                     <div class="card-body">
                         <h5 class="card-title text-primary text-center">{{ subject.name }}</h5>
                         <p class="card-text text-muted text-center">{{ subject.description }}</p>
-                        <table class="table table-hover">
+                        <table v-if="getChaptersForSubject(subject.id).length" class="table table-hover mt-3">
                             <tr>
                                 <th>Chapter Name</th>
                                 <th>No of Quizzes</th>
@@ -33,6 +33,7 @@ export default {
                                 </td>
                             </tr>
                         </table>
+                        <p v-else class="text-muted">No chapters available.</p>
                     </div>
                     <div class="card-footer bg-white d-flex gap-2">
                         <button class="btn btn-outline-primary w-50" @click="goToChapters(subject.id)">

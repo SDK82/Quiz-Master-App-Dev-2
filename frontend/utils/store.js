@@ -5,6 +5,7 @@ const store = new Vuex.Store({
         role : null,
         loggedIn: false,
         user_id: null,
+        user_name: null,
 
     },
     mutations: {
@@ -17,6 +18,7 @@ const store = new Vuex.Store({
                     state.role = user.role;
                     state.loggedIn = true;
                     state.user_id = user.id;
+                    state.user_name = user.name;
                 }
             } catch (error) {
                 console.warn('You are not logged in');
@@ -28,6 +30,7 @@ const store = new Vuex.Store({
             state.role = null;
             state.loggedIn = false;
             state.user_id = null;
+            state.user_name = null;
             localStorage.removeItem('user');
         },
     },

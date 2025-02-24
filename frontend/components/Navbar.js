@@ -25,13 +25,13 @@ export default {
             </li>
             <!-- Show User Home and Admin Dashboard if logged in -->
             <li class="nav-item" v-if="isLoggedIn && $store.state.role === 'user'">
-              <router-link to="/user" class="nav-link" />User Home</router-link>
+              <router-link to="/user" class="nav-link" >User Home</router-link>
             </li>
             <li class="nav-item" v-if="isLoggedIn && $store.state.role === 'admin'">
               <router-link to="/admin-dashboard" class="nav-link" >Admin Dashboard</router-link>
             </li>
             <li class="nav-item" v-if="isLoggedIn && $store.state.role === 'user'">
-              <router-link to="/user" class="nav-link" >Scores</router-link>
+              <router-link to="/score-summary" class="nav-link" >Scores</router-link>
             </li>
             <li class="nav-item" v-if="isLoggedIn && $store.state.role === 'user'">
             <router-link to="/user" class="nav-link" >Summary</router-link>

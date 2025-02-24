@@ -13,9 +13,10 @@ export default {
                     <div class="card h-100 shadow-sm">
                         <div class="card-body">
                             <h5 class="card-title text-primary">Quiz ID: {{ quiz.id }}</h5>
-                            <p class="card-text"><strong>Date:</strong> {{ formatDate(quiz.date_of_quiz) }}</p>
+                            <p class="card-text"><strong>No of Questions:</strong> {{ quiz.no_of_questions || 0 }}</p>
                             <p class="card-text"><strong>Duration:</strong> {{ quiz.time_duration }} minutes</p>
                             <p class="card-text"><strong>Remarks:</strong> {{ quiz.remarks || 'No remarks available' }}</p>
+                            <p class="card-text"><strong>Date:</strong> {{ formatDate(quiz.date_of_quiz) }}</p>
                             <router-link :to="'/quiz/' + quiz.id" class="btn btn-sm btn-outline-primary w-100">Start Quiz</router-link>
                         </div>
                     </div>
@@ -24,35 +25,44 @@ export default {
         </div>
     </div>
     `,
+
     data() {
         return {
-            quizzes: [],  // Store quiz list
-            chapterName: "" // Store chapter name
+            quizzes: [],
+            chapterName: ""
         };
     },
+
     async mounted() {
-        const chapterId = this.$route.params.chapterId; // Get chapter ID from route
+        const chapterId = this.$route.params.chapterId;
         const response = await fetch(`${location.origin}/api/chapter/${chapterId}/quizzes`, {
             headers: {
                 'Authorization-Token': this.$store.state.auth_token
             },
         });
-
+    
         const quizzes = await response.json();
+        console.log("Fetched quizzes:", quizzes);  // Debugging
+        console.log("First quiz object:", quizzes[0]);
+        console.log("Questions in first quiz:", quizzes[0].questions);
+    
         this.quizzes = quizzes;
-
-        // Fetch chapter name if available
+    
         if (quizzes.length > 0 && quizzes[0].chapter_name) {
             this.chapterName = quizzes[0].chapter_name;
         }
+    
+    
+
     },
+
     methods: {
         formatDate(dateString) {
             const date = new Date(dateString);
-            return date.toLocaleDateString(); // Format date as per user's locale
+            return date.toLocaleDateString();
         },
         goBack() {
-            this.$router.go(-1); // Go back to the previous page
+            this.$router.go(-1);
         }
     }
 };

@@ -44,6 +44,7 @@ export default {
                 <div v-else>
                     <div v-if="currentQuestionIndex < questions.length">
                         <div class="card shadow-sm p-4">
+                            <h5 >Question {{ currentQuestionIndex + 1 }}:-</h5>
                             <h4 class="mb-3">{{ currentQuestion.question_statement }}</h4>
                             <div class="form-check" v-for="(option, index) in options" :key="index">
                                 <input
@@ -69,7 +70,8 @@ export default {
                         <!-- Navigation Buttons -->
                         <div class="d-flex justify-content-between mt-3">
                             <button
-                                class="btn btn-secondary"
+                                class="btn" 
+                                style="color: white; background-color:rgb(89, 0, 255);"
                                 @click="previousQuestion"
                                 :disabled="currentQuestionIndex === 0"
                             >
@@ -86,7 +88,7 @@ export default {
 
                             <!-- Next Button (Shows for all except last question) -->
                             <button
-                                class="btn btn-primary"
+                                class="btn btn-success"
                                 @click="nextQuestion"
                                 v-if="currentQuestionIndex < questions.length - 1"
                             >
@@ -124,6 +126,7 @@ export default {
             selectedOptions: [], // Stores selected answers
             score: 0,
             timeRemaining: 0,
+            timeElapsed: 0,  
             timerInterval: null,
             quizCompleted: false, 
             quiz: {},
@@ -179,6 +182,11 @@ export default {
             const seconds = this.timeRemaining % 60;
             return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
         },
+        formattedElapsedTime() {
+            const minutes = Math.floor(this.timeElapsed / 60);
+            const seconds = this.timeElapsed % 60;
+            return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+        },
     },
 
     methods: {
@@ -186,6 +194,7 @@ export default {
             this.timerInterval = setInterval(() => {
                 if (this.timeRemaining > 0) {
                     this.timeRemaining--;
+                    this.timeElapsed++;  
                 } else {
                     clearInterval(this.timerInterval);
                     this.submitQuiz();
@@ -253,7 +262,6 @@ export default {
         },
 
         async submitQuiz() {
-            this.visitedQuestions[this.currentQuestionIndex] = true;
             if (this.quizCompleted) return;
             this.quizCompleted = true;
             this.stopTimer();
@@ -274,6 +282,7 @@ export default {
                         quiz_id: this.quizId,
                         user_id: this.$store.state.user_id,
                         total_score: this.score,
+                        time_taken: this.timeElapsed, 
                     }),
                 });
             } catch (error) {

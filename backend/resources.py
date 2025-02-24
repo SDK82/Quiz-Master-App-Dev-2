@@ -31,8 +31,8 @@ question_fields = {
     'quiz_id': fields.Integer,
     'time_duration': fields.String,
 }
-quiz_fields = {'id': fields.Integer, 'chapter_id': fields.Integer, 'remarks': fields.String, 'date_of_quiz': fields.DateTime, 'time_duration': fields.String , 'chapter_name': fields.String}
-score_fields = {'id': fields.Integer, 'quiz_id': fields.Integer, 'user_id': fields.Integer, 'total_score': fields.Float}
+quiz_fields = {'id': fields.Integer, 'chapter_id': fields.Integer, 'remarks': fields.String, 'date_of_quiz': fields.DateTime, 'time_duration': fields.String , 'chapter_name': fields.String, 'no_of_questions': fields.Integer}
+score_fields = {'id': fields.Integer, 'quiz_id': fields.Integer, 'user_id': fields.Integer, 'total_score': fields.Float, 'timestamp': fields.DateTime, 'time_taken': fields.Integer}
 
 # Subject API
 class SubjectApi(Resource):
@@ -185,20 +185,17 @@ class QuestionApi(Resource):
 # Quiz API
 
 class QuizApi(Resource):
-    # ... other methods
 
     @auth_required('token')
     @cache.memoize(timeout=5)
-    @marshal_with(quiz_fields) # Use the updated quiz_fields
-    def get(self, chapter_id=None, quiz_id=None):  # Add quiz_id parameter
+    @marshal_with(quiz_fields)
+    def get(self, chapter_id=None, quiz_id=None):
         if quiz_id:
-            quiz = Quiz.query.get_or_404(quiz_id)  # Handle quiz not found
-            return quiz  # Return single quiz object
+            quiz = Quiz.query.get_or_404(quiz_id)
+            print(f"Quiz {quiz.id} has {len(quiz.questions)} questions")  # Debugging
+            return quiz
         elif chapter_id:
-
             quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
-            if not quizzes:
-                return {'message': 'No quizzes found for the given chapter'}, 404
 
             return [
                 {
@@ -206,12 +203,13 @@ class QuizApi(Resource):
                     "chapter_id": quiz.chapter_id,
                     "chapter_name": quiz.chapter.name,
                     "date_of_quiz": quiz.date_of_quiz,
-                    "time_duration": quiz.time_duration, # time_duration is here
+                    "time_duration": quiz.time_duration,
                     "remarks": quiz.remarks,
+                    "no_of_questions": len(quiz.questions)  # Ensure this prints correctly
                 }
                 for quiz in quizzes
             ], 200
-   
+
 
 
     @auth_required('token')
@@ -255,12 +253,37 @@ class QuizApi(Resource):
 class ScoreApi(Resource):
     @auth_required('token')
     @cache.memoize(timeout=5)
-    @marshal_with(score_fields)
     def get(self, user_id):
-        scores = Score.query.filter_by(user_id=user_id).all()
+        scores = (
+            db.session.query(
+                Score.id, Score.total_score, Score.time_taken, Score.timestamp,
+                Score.max_score,  # Include max_score
+                Quiz.id.label("quiz_id"), Chapter.name.label("chapter_name"), 
+                Subject.name.label("subject_name")
+            )
+            .join(Quiz, Score.quiz_id == Quiz.id)
+            .join(Chapter, Quiz.chapter_id == Chapter.id)
+            .join(Subject, Chapter.subject_id == Subject.id)
+            .filter(Score.user_id == user_id)
+            .all()
+        )
+
         if not scores:
             return {'message': 'No scores found for this user'}, 404
-        return scores, 200
+
+        return [
+            {
+                "id": score.id,
+                "subject_name": score.subject_name,
+                "chapter_name": score.chapter_name,
+                "total_score": score.total_score,
+                "max_score": score.max_score, 
+                "time_taken": score.time_taken,
+                "timestamp": score.timestamp.strftime("%Y-%m-%d %H:%M:%S") if score.timestamp else None,
+            }
+            for score in scores
+        ], 200
+
 
     
 
@@ -281,32 +304,41 @@ class ScoreApi(Resource):
             return {'message': 'Request body must be JSON'}, 400
 
         data = request.get_json()
-        print("Received data:", data)  # Debugging
 
         try:
-            # Convert quiz_id and user_id to integers
             quiz_id = int(data.get('quiz_id'))
             user_id = int(data.get('user_id'))
-            total_score = float(data.get('total_score'))  # Ensure float
+            total_score = float(data.get('total_score'))
+            time_taken = int(data.get('time_taken'))
 
-            # Validate required fields
-            if quiz_id is None or user_id is None or total_score is None:
-                return {'message': 'Missing required fields'}, 400
+            # Get max score by counting questions in the quiz
+            max_score = Question.query.filter_by(quiz_id=quiz_id).count()
 
-            # Create and save new score
-            new_score = Score(quiz_id=quiz_id, user_id=user_id, total_score=total_score)
+            new_score = Score(
+                quiz_id=quiz_id,
+                user_id=user_id,
+                total_score=total_score,
+                time_taken=time_taken,
+                max_score=max_score  # Set max score
+            )
+
             db.session.add(new_score)
             db.session.commit()
 
-            return {'message': 'Score saved successfully!', 'score_id': new_score.id}, 201
+            return {
+                'message': 'Score saved successfully!',
+                'score_id': new_score.id,
+                'max_score': max_score  # Return max score
+            }, 201
 
         except ValueError as e:
-            print("Error converting data types:", str(e))  # Debugging
+            logger.error(f"Data conversion error: {str(e)}")
             return {'message': 'Invalid data format'}, 400
         except Exception as e:
             db.session.rollback()
-            print("Error saving score:", str(e))  # Debugging
+            logger.error(f"Database error: {str(e)}")
             return {'message': 'An error occurred while saving the score'}, 500
+
 
     
 
