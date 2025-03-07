@@ -37,7 +37,10 @@ with app.app_context():
             date_of_quiz=datetime.utcnow(),
             time_duration='01:30',
             remarks='This is a sample quiz.',
-            chapter_id=chapter.id
+            chapter_id=chapter.id,
+            created_at=datetime.utcnow(),
+            difficulty='Medium'
+    
         )
         db.session.add(quiz)
         db.session.commit()

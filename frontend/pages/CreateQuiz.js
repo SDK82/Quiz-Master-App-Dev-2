@@ -32,6 +32,14 @@ export default {
                     <input v-model="quiz.seconds" type="number" min="0" max="59" id="timeSeconds" class="form-control" placeholder="Seconds" required>
                 </div>
             </div>
+            <div class="mb-3">
+                <label for="difficulty">Difficulty</label>
+                <select v-model="quiz.difficulty" id="difficulty" class="form-select" required>
+                    <option value="Easy">Easy</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Hard">Hard</option>
+                </select>
+            </div>
 
             <!-- Questions Section -->
             <h3 class="mt-5 mb-3">Questions</h3>
@@ -85,6 +93,7 @@ export default {
                 minutes: '', // Minutes input field
                 seconds: '', // Seconds input field
                 questions: [],
+                difficulty: 'medium', // Default difficulty
             },
             chapters: [], // To store chapters fetched from the API
         };
@@ -141,6 +150,8 @@ export default {
                         remarks: this.quiz.remarks,
                         date_of_quiz: formattedDate,
                         time_duration: formattedTimeDuration, // Store as MM:SS format
+                        difficulty: this.quiz.difficulty,
+
                     }),
                 });
 
@@ -150,6 +161,10 @@ export default {
                 const quizId = quizData.id;
 
                 // Add questions to the quiz
+                if (this.quiz.questions.length === 0) {
+                    alert('Please add questions to the quiz');
+                    return;
+                }
                 for (const question of this.quiz.questions) {
                     const questionResponse = await fetch(`${location.origin}/api/questions`, {
                         method: 'POST',

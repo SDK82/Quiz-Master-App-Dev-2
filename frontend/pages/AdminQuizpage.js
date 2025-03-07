@@ -33,9 +33,15 @@ export default {
                 </tbody>
             </table>
         </div>
+<!-- Centered Create Quiz Button -->
+<div class="d-flex justify-content-center mt-3">
+    <button class="btn btn-md btn-primary px-3" @click="createQuiz">
+        + Create Quiz
+    </button>
+</div>
 
         <!-- Back Button -->
-        <button class="btn btn-secondary mt-3" @click="goBack">⬅️ Back</button>
+        <button class="btn btn-danger mt-3" @click="goBack">⬅️ Back</button>
     </div>
     `,
  data() {
@@ -102,11 +108,16 @@ export default {
 
                 // ✅ Fetch updated quizzes after deleting one
                 await this.fetchQuizzes();
+                alert("Quiz deleted successfully!");
                 
             } catch (error) {
                 console.error("Error deleting quiz:", error);
             }
 
             },
+            createQuiz() {
+                this.$router.push('/admin/create-quiz');
+            }
+        
 }
 };

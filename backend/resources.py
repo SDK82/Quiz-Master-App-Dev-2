@@ -13,10 +13,6 @@ api = Api(prefix='/api')
 
 
 
-
-api = Api(prefix='/api')
-
-
 # Marshaling fields
 subject_fields = {'id': fields.Integer, 'name': fields.String, 'description': fields.String}
 chapter_fields = {'id': fields.Integer, 'name': fields.String, 'description': fields.String, 'subject_id': fields.Integer, 'subject_name': fields.String,    'no_of_questions': fields.Integer}
@@ -31,7 +27,7 @@ question_fields = {
     'quiz_id': fields.Integer,
     'time_duration': fields.String,
 }
-quiz_fields = {'id': fields.Integer, 'chapter_id': fields.Integer, 'remarks': fields.String, 'date_of_quiz': fields.DateTime, 'time_duration': fields.String , 'chapter_name': fields.String, 'no_of_questions': fields.Integer}
+quiz_fields = {'id': fields.Integer, 'chapter_id': fields.Integer, 'remarks': fields.String, 'date_of_quiz': fields.DateTime, 'time_duration': fields.String , 'chapter_name': fields.String, 'no_of_questions': fields.Integer, 'difficulty': fields.String, 'created_at': fields.DateTime}
 score_fields = {'id': fields.Integer, 'quiz_id': fields.Integer, 'user_id': fields.Integer, 'total_score': fields.Float, 'timestamp': fields.DateTime, 'time_taken': fields.Integer}
 
 # Subject API
@@ -205,7 +201,9 @@ class QuizApi(Resource):
                     "date_of_quiz": quiz.date_of_quiz,
                     "time_duration": quiz.time_duration,
                     "remarks": quiz.remarks,
-                    "no_of_questions": len(quiz.questions)  # Ensure this prints correctly
+                    "no_of_questions": len(quiz.questions),  
+                    "difficulty": quiz.difficulty,
+                    "created_at": quiz.created_at,
                 }
                 for quiz in quizzes
             ], 200
@@ -224,7 +222,9 @@ class QuizApi(Resource):
                 chapter_id=data['chapter_id'],
                 date_of_quiz=date_of_quiz,
                 time_duration=data['time_duration'],
-                remarks=data['remarks']
+                remarks=data['remarks'],
+                difficulty=data['difficulty'],  
+
             )
 
             db.session.add(new_quiz)

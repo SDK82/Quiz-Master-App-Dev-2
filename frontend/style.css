@@ -1,0 +1,72 @@
+.transition-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+.transition-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    width: 400px;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Make Buttons Look Nice */
+button {
+    transition: all 0.2s ease-in-out;
+}
+button:hover {
+    transform: scale(1.05);
+}
+
+
+.hover-effect {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+.hover-effect:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.chapter-box {
+    transition: transform 0.3s ease-in-out !important; 
+                box-shadow: 0.3s ease-in-out !important;
+                background-color: 0.3s ease-in-out !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-radius: 12px !important; /* Smooth rounded edges */
+    padding: 15px !important;
+    background: #ffffff !important; /* Clean white background */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05) !important; /* Subtle shadow */
+}
+
+/* Hover effect */
+.chapter-box:hover {
+    transform: translateY(-5px) !important; /* Slight lift effect */
+    background-color: #f8f9fa !important; /* Light gray background */
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15) !important; /* Enhanced shadow */
+    border-color: rgba(0, 0, 0, 0.15) !important; /* Darken border slightly */
+}
+
+/* Active (pressed) effect */
+.chapter-box:active {
+    transform: translateY(2px) !important;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1) !important;
+}
+

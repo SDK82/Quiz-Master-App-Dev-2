@@ -40,8 +40,9 @@ class User(db.Model, UserMixin):
 class UserRoles(db.Model):
     __tablename__ = 'user_roles'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'))
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id', ondelete='CASCADE'))
+
 
 # Subject Table
 class Subject(db.Model):
@@ -77,8 +78,12 @@ class Quiz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     chapter_id = db.Column(db.Integer, db.ForeignKey('chapters.id'), nullable=False)
     date_of_quiz = db.Column(db.DateTime, nullable=False)
-    time_duration = db.Column(db.Integer)  # Store time in seconds
+    time_duration = db.Column(db.Integer, nullable=False, default=0)  # Default to 0 if needed
     remarks = db.Column(db.Text)
+    difficulty = db.Column(db.String(50), nullable=False, default="Medium")  # Easy, Medium, Hard
+    created_at = db.Column(db.DateTime, server_default=db.func.current_timestamp())
+
+
 
     # Relationships
     questions = db.relationship('Question', backref='quiz', lazy=True, cascade="all, delete")

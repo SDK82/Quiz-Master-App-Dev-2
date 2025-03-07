@@ -15,14 +15,18 @@ export default {
                             <h5 class="card-title text-primary">Quiz ID: {{ quiz.id }}</h5>
                             <p class="card-text"><strong>No of Questions:</strong> {{ quiz.no_of_questions || 0 }}</p>
                             <p class="card-text"><strong>Duration:</strong> {{ quiz.time_duration }} minutes</p>
+                            <p class="card-text"><strong>Difficulty:</strong> {{ quiz.difficulty }}</p>
                             <p class="card-text"><strong>Remarks:</strong> {{ quiz.remarks || 'No remarks available' }}</p>
-                            <p class="card-text"><strong>Date:</strong> {{ formatDate(quiz.date_of_quiz) }}</p>
+                            <p class="card-text"><strong>Start Date:</strong> {{ formatDate(quiz.date_of_quiz) }}</p>
+                            <p class="card-text"><strong>Created At:</strong> {{ formatDate(quiz.created_at) }}</p>
                             <router-link :to="'/quiz/' + quiz.id" class="btn btn-sm btn-outline-primary w-100">Start Quiz</router-link>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <button class="btn btn-danger" @click="goBack">⬅️ Go Back</button>
+
     </div>
     `,
 
@@ -57,10 +61,15 @@ export default {
     },
 
     methods: {
+        
         formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString();
-        },
+                if (!dateString) return "N/A";
+                const date = new Date(dateString);
+                return date.getUTCDate().toString().padStart(2, '0') + '/' + 
+                       (date.getUTCMonth() + 1).toString().padStart(2, '0') + '/' + 
+                       date.getUTCFullYear();
+            },
+        
         goBack() {
             this.$router.go(-1);
         }

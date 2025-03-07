@@ -36,22 +36,6 @@ export default {
     </div>
 `,
 
-  style: `
-.chapter-card {
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-}
-.chapter-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.15);
-}
-.card {
-    min-height: 200px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-`,
-
   data() {
     return {
       subjectName: "",
