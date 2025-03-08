@@ -80,6 +80,7 @@ export default {
                         qualification: this.qualification,
                         dob: this.dob,
                         role: 'user', // Default role as 'user'
+                        
                     }),
                 });
 

@@ -20,6 +20,11 @@ export default {
                         <p class="card-text text-muted">
                             {{ chapter.description || 'No description available.' }}
                         </p>
+                        <div class="border rounded overflow-hidden">
+                        <div v-if="chapter.no_of_questions" class="table table-hover mt-3 mb-0">
+                                <p class="p-3 fw-bold">No of Quizzes -{{ chapter.no_of_questions }}</p>
+                         </div>                    
+                    </div>
                     </div>
                     <div class="card-footer bg-white border-0 text-center">
                         <button class="btn btn-outline-primary w-75 py-2 fw-semibold">View Quizzes</button>
@@ -27,11 +32,14 @@ export default {
                 </div>
             </div>
         </div>
+
         </div>
+        <button class="btn btn-danger text-left" @click="goBack">⬅️ Go Back</button>
+
 
         <div v-else class="text-center mt-5">
             <p class="lead text-muted">No chapters found for this subject.</p>
-            <button class="btn btn-primary" @click="goBack">Go Back</button>
+            <button class="btn btn-primary" @click="goBack">⬅️ Go Back</button>
         </div>
     </div>
 `,

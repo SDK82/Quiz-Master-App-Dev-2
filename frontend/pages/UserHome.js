@@ -13,12 +13,15 @@ export default {
                 style="cursor: pointer;"
             >
                 <div class="card h-100 shadow-sm">
+                <div v-if="subject.image" class="card-img-top" style="height: 150px; overflow: hidden;">
+                <img :src="subject.image" :alt="subject.name" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
                     <div class="card-body">
-                        <h5 class="card-title text-primary">{{ subject.name }}</h5>
-                        <p class="card-text text-secondary">
+                        <h5 class="card-title text-primary text-center">{{ subject.name }}</h5>
+                        <p class="card-text text-secondary text-center">
                             {{ subject.description || 'No description available.' }}
                         </p>
-                        
+                        <div class="border rounded overflow-hidden">
                         <table v-if="getChaptersForSubject(subject.id).length" class="table table-hover mt-3">
                             <thead>
                                 <tr>
@@ -32,12 +35,12 @@ export default {
                                     <td>{{ chapter.name }}</td>
                                     <td>{{ chapter.no_of_questions }}</td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-primary" @click.stop="goToQuizzes(chapter.id)">View</button>
+                                        <button class="btn btn-sm btn-outline-success display-flex " @click.stop="goToQuizzes(chapter.id)">View</button>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
-
+                        </div>
                         <p v-else class="text-muted">No chapters available.</p>
                     </div>
                     <div class="card-footer bg-white">

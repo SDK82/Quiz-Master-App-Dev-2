@@ -13,7 +13,7 @@ with app.app_context():
         subject = Subject(
             name='Mathematics',
             description='Mathematics is the study of numbers, quantity, space, structure, and change.',
-            image='maths.jpg'
+            image='uploads/subjects/maths.jpg'
         )
         db.session.add(subject)
         db.session.commit()

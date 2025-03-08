@@ -1,86 +1,103 @@
 export default {
     template: `
     <div class="container my-5">
-        <h1 class="text-center mb-5" style="font-size: 2.5rem; font-weight: bold; color: #2c3e50;">
-            Create Quiz
-        </h1>
+        <h1 class="text-center mb-5 fw-bold text-primary">Create a New Quiz</h1>
 
         <!-- Quiz Form -->
-        <form @submit.prevent="createQuiz">
-            <div class="mb-3">
-                <label for="chapterId" class="form-label">Chapter</label>
-                <select v-model="quiz.chapter_id" id="chapterId" class="form-select" required>
-                    <option v-for="chapter in chapters" :key="chapter.id" :value="chapter.id">
-                        {{ chapter.name }}
-                    </option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="remarks" class="form-label">Remarks</label>
-                <input v-model="quiz.remarks" type="text" id="remarks" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="dateOfQuiz" class="form-label">Date of Quiz</label>
-                <input v-model="quiz.date_of_quiz" type="datetime-local" id="dateOfQuiz" class="form-control" required>
-            </div>
+        <form @submit.prevent="createQuiz" class="bg-white p-5 rounded shadow-lg">
+            <div class="row g-4">
+                <!-- Subject Dropdown -->
+                <div class="col-md-6">
+                    <label for="subjectId" class="form-label fw-bold">Select Subject</label>
+                    <select v-model="selectedSubjectId" id="subjectId" class="form-select form-select-lg" required @change="fetchChaptersBySubject">
+                        <option value="" disabled>Select a subject</option>
+                        <option v-for="subject in subjects" :key="subject.id" :value="subject.id">
+                            {{ subject.name }}
+                        </option>
+                    </select>
+                </div>
 
-            <!-- Time Duration Section (Separate Fields for Minutes & Seconds) -->
-            <div class="mb-3">
-                <label class="form-label">Time Duration</label>
-                <div class="d-flex">
-                    <input v-model="quiz.minutes" type="number" min="0" id="timeMinutes" class="form-control me-2" placeholder="Minutes" required>
-                    <input v-model="quiz.seconds" type="number" min="0" max="59" id="timeSeconds" class="form-control" placeholder="Seconds" required>
+                <!-- Chapter Dropdown -->
+                <div class="col-md-6">
+                    <label for="chapterId" class="form-label fw-bold">Select Chapter</label>
+                    <select v-model="quiz.chapter_id" id="chapterId" class="form-select form-select-lg" required :disabled="!selectedSubjectId">
+                        <option value="" disabled>Select a chapter</option>
+                        <option v-for="chapter in chapters" :key="chapter.id" :value="chapter.id">
+                            {{ chapter.name }}
+                        </option>
+                    </select>
                 </div>
             </div>
-            <div class="mb-3">
-                <label for="difficulty">Difficulty</label>
-                <select v-model="quiz.difficulty" id="difficulty" class="form-select" required>
-                    <option value="Easy">Easy</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Hard">Hard</option>
-                </select>
+
+            <div class="row g-4 mt-3">
+                <div class="col-md-6">
+                    <label for="remarks" class="form-label fw-bold">Quiz Title / Remarks</label>
+                    <input v-model="quiz.remarks" type="text" id="remarks" class="form-control form-control-lg" placeholder="Enter quiz title" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="dateOfQuiz" class="form-label fw-bold">Date & Time</label>
+                    <input v-model="quiz.date_of_quiz" type="datetime-local" id="dateOfQuiz" class="form-control form-control-lg" required>
+                </div>
+            </div>
+
+            <!-- Time Duration Section -->
+            <div class="row g-4 mt-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Time Duration</label>
+                    <div class="d-flex gap-3">
+                        <input v-model="quiz.minutes" type="number" min="0" class="form-control form-control-lg text-center" placeholder="Minutes" required>
+                        <input v-model="quiz.seconds" type="number" min="0" max="59" class="form-control form-control-lg text-center" placeholder="Seconds" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label for="difficulty" class="form-label fw-bold">Difficulty Level</label>
+                    <select v-model="quiz.difficulty" id="difficulty" class="form-select form-select-lg" required>
+                        <option value="Easy">Easy</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Hard">Hard</option>
+                    </select>
+                </div>
             </div>
 
             <!-- Questions Section -->
-            <h3 class="mt-5 mb-3">Questions</h3>
-            <div v-for="(question, index) in quiz.questions" :key="index" class="mb-4 border p-3 rounded">
-                <div class="mb-3">
-                    <label :for="'question-' + index" class="form-label">Question {{ index + 1 }}</label>
-                    <textarea v-model="question.question_statement" :id="'question-' + index" class="form-control" required></textarea>
+            <h3 class="mt-5 mb-4 text-primary fw-bold">Quiz Questions</h3>
+            <div v-for="(question, index) in quiz.questions" :key="index" class="mb-4 p-4 border rounded shadow-sm bg-light">
+                <h5 class="text-secondary fw-bold">Question {{ index + 1 }}</h5>
+                <textarea v-model="question.question_statement" class="form-control form-control-lg mb-3" rows="2" placeholder="Enter question text" required></textarea>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <input v-model="question.option1" type="text" class="form-control form-control-lg" placeholder="Option 1" required>
+                    </div>
+                    <div class="col-md-6">
+                        <input v-model="question.option2" type="text" class="form-control form-control-lg" placeholder="Option 2" required>
+                    </div>
+                    <div class="col-md-6">
+                        <input v-model="question.option3" type="text" class="form-control form-control-lg" placeholder="Option 3" required>
+                    </div>
+                    <div class="col-md-6">
+                        <input v-model="question.option4" type="text" class="form-control form-control-lg" placeholder="Option 4" required>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label :for="'option1-' + index" class="form-label">Option 1</label>
-                    <input v-model="question.option1" :id="'option1-' + index" type="text" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label :for="'option2-' + index" class="form-label">Option 2</label>
-                    <input v-model="question.option2" :id="'option2-' + index" type="text" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label :for="'option3-' + index" class="form-label">Option 3</label>
-                    <input v-model="question.option3" :id="'option3-' + index" type="text" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label :for="'option4-' + index" class="form-label">Option 4</label>
-                    <input v-model="question.option4" :id="'option4-' + index" type="text" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label :for="'correctOption-' + index" class="form-label">Correct Option</label>
-                    <select v-model="question.correct_option" :id="'correctOption-' + index" class="form-select" required>
-                        <option value="1">Option 1</option>
-                        <option value="2">Option 2</option>
-                        <option value="3">Option 3</option>
-                        <option value="4">Option 4</option>
-                    </select>
-                </div>
-                <button type="button" class="btn btn-danger" @click="removeQuestion(index)">Remove Question</button>
+
+                <label class="form-label fw-bold mt-3">Correct Answer</label>
+                <select v-model="question.correct_option" class="form-select form-select-lg" required>
+                    <option value="1">Option 1</option>
+                    <option value="2">Option 2</option>
+                    <option value="3">Option 3</option>
+                    <option value="4">Option 4</option>
+                </select>
+
+                <button type="button" class="btn btn-danger mt-3 w-100" @click="removeQuestion(index)">Remove Question</button>
             </div>
 
             <!-- Add Question Button -->
-            <button type="button" class="btn btn-primary mb-4" @click="addQuestion">Add Question</button>
+            <button type="button" class="btn btn-outline-primary btn-lg w-100 mt-3" @click="addQuestion">
+                + Add Question
+            </button>
 
             <!-- Submit Button -->
-            <button type="submit" class="btn btn-success">Create Quiz</button>
+            <button type="submit" class="btn btn-success btn-lg w-100 mt-4">Create Quiz</button>
         </form>
     </div>
     `,
@@ -95,16 +112,35 @@ export default {
                 questions: [],
                 difficulty: 'medium', // Default difficulty
             },
+            subjects: [], // To store subjects fetched from the API
             chapters: [], // To store chapters fetched from the API
+            selectedSubjectId: null, // To store the selected subject ID
         };
     },
     async mounted() {
-        await this.fetchChapters();
+        await this.fetchSubjects();
     },
     methods: {
-        async fetchChapters() {
+        // Fetch all subjects
+        async fetchSubjects() {
             try {
-                const response = await fetch(`${location.origin}/api/chapters`, {
+                const response = await fetch(`${location.origin}/api/subjects`, {
+                    headers: { 'Authorization-Token': this.$store.state.auth_token },
+                });
+                if (!response.ok) throw new Error('Failed to fetch subjects');
+                this.subjects = await response.json();
+            } catch (error) {
+                console.error(error);
+                alert('Error fetching subjects');
+            }
+        },
+
+        // Fetch chapters by selected subject
+        async fetchChaptersBySubject() {
+            if (!this.selectedSubjectId) return;
+
+            try {
+                const response = await fetch(`${location.origin}/api/subjects/${this.selectedSubjectId}/chapters`, {
                     headers: { 'Authorization-Token': this.$store.state.auth_token },
                 });
                 if (!response.ok) throw new Error('Failed to fetch chapters');
@@ -133,7 +169,7 @@ export default {
         async createQuiz() {
             try {
                 // Convert Date Format for Database
-                const formattedDate = this.quiz.date_of_quiz.replace("T", " ") + ":00"; 
+                const formattedDate = this.quiz.date_of_quiz.replace("T", " ") + ":00";
 
                 // Format Time Duration as "MM:SS"
                 const formattedTimeDuration = `${String(this.quiz.minutes).padStart(2, '0')}:${String(this.quiz.seconds).padStart(2, '0')}`;
@@ -151,7 +187,6 @@ export default {
                         date_of_quiz: formattedDate,
                         time_duration: formattedTimeDuration, // Store as MM:SS format
                         difficulty: this.quiz.difficulty,
-
                     }),
                 });
 
@@ -189,4 +224,4 @@ export default {
             }
         },
     },
-};
+}

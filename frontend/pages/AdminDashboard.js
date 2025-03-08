@@ -1,5 +1,6 @@
 export default {
     template: `
+  
     <div class="container my-5">
         <!-- Header Section -->
         <h1 class="text-center mb-5" style="font-size: 2.5rem; font-weight: bold; color: #2c3e50;">
@@ -18,9 +19,14 @@ export default {
         <div class="row row-cols-2 row-cols-md-4 row-cols-lg-3 g-2 h-200">
             <div class="col" v-for="subject in subjects" :key="subject.id" style="cursor: pointer;">
                 <div class="card h-100 shadow-sm">
+                    <!-- Subject Image -->
+                    <div v-if="subject.image" class="card-img-top" style="height: 150px; overflow: hidden;">
+                        <img :src="subject.image" :alt="subject.name" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
                     <div class="card-body">
                         <h5 class="card-title text-primary text-center">{{ subject.name }}</h5>
                         <p class="card-text text-muted text-center">{{ subject.description }}</p>
+                        <div class="border rounded overflow-hidden">
                         <table v-if="getChaptersForSubject(subject.id).length" class="table table-hover mt-3">
                             <tr>
                                 <th>Chapter Name</th>
@@ -36,12 +42,13 @@ export default {
                                             View Quizzes
                                         </button>
                                         <button class="btn btn-sm btn-outline-danger" @click="deleteChapter(chapter.id, subject.id)">
-                                            Delete
+                                            Delete Chapter
                                         </button>
                                     </div>
                                 </td>
                             </tr>
                         </table>
+                        </div>
                         <p v-else class="text-muted">No chapters available.</p>
                     </div>
                     <div class="card-footer bg-white d-flex gap-2">
@@ -49,7 +56,7 @@ export default {
                             View Chapters
                         </button>
                         <button class="btn btn-outline-danger w-50" @click="deleteSubject(subject.id)">
-                            Delete
+                            Delete Subject
                         </button>
                     </div>
                 </div>
@@ -58,7 +65,7 @@ export default {
 
         <!-- Add Subject Button -->
         <div class="text-center mt-5">
-            <button class="btn btn-primary" @click="showAddSubjectModal = true">Add Subject</button>
+            <button class="btn btn-primary" @click="showAddSubjectModal = true">+ Add Subject</button>
         </div>
 
         <!-- Add Subject Modal -->
@@ -87,6 +94,7 @@ export default {
             </div>
         </div>
     </div>
+
     `,
     data() {
         return {
