@@ -1,11 +1,20 @@
 export default {
     template: `
     <div class="container my-5">
+        <!-- Header Section -->
         <h1 class="text-center mb-5" style="font-size: 2.5rem; font-weight: bold; color: #2c3e50;">
             Welcome to Admin Home
         </h1>
         <h2 class="text-center mb-5" style="font-size: 2rem; color: #2980b9;">Subjects</h2>
 
+        <!-- Create Quiz Button -->
+        <div class="d-flex justify-content-end mb-4">
+            <button class="btn btn-primary" @click="createQuiz">
+                + Create Quiz
+            </button>
+        </div>
+
+        <!-- Subjects Grid -->
         <div class="row row-cols-2 row-cols-md-4 row-cols-lg-3 g-2 h-200">
             <div class="col" v-for="subject in subjects" :key="subject.id" style="cursor: pointer;">
                 <div class="card h-100 shadow-sm">
@@ -47,6 +56,7 @@ export default {
             </div>
         </div>
 
+        <!-- Add Subject Button -->
         <div class="text-center mt-5">
             <button class="btn btn-primary" @click="showAddSubjectModal = true">Add Subject</button>
         </div>
@@ -64,6 +74,11 @@ export default {
                         <label for="subjectDescription" class="form-label">Description</label>
                         <textarea v-model="newSubject.description" id="subjectDescription" class="form-control" required></textarea>
                     </div>
+                    <!-- Image Upload -->
+                    <div class="mb-3">
+                        <label class="form-label">Upload Image</label>
+                        <input type="file" @change="handleFileUpload" accept="image/*" />
+                    </div>
                     <div class="d-flex justify-content-end">
                         <button type="button" class="btn btn-secondary me-2" @click="showAddSubjectModal = false">Cancel</button>
                         <button type="submit" class="btn btn-success">Add Subject</button>
@@ -71,8 +86,6 @@ export default {
                 </form>
             </div>
         </div>
-
-        <button class="btn btn-primary" @click="createQuiz">Create Quiz</button>
     </div>
     `,
     data() {
@@ -80,7 +93,7 @@ export default {
             subjects: [],
             chapters: {}, // Store chapters per subject
             showAddSubjectModal: false,
-            newSubject: { name: '', description: '' },
+            newSubject: { name: '', description: '', image: null }, // Store the file
         };
     },
     async mounted() {
@@ -148,20 +161,28 @@ export default {
 
         async addSubject() {
             try {
+                // Create FormData object
+                const formData = new FormData();
+                formData.append('name', this.newSubject.name);
+                formData.append('description', this.newSubject.description);
+                if (this.newSubject.image) {
+                    formData.append('image', this.newSubject.image); // Append the image file
+                }
+        
                 const response = await fetch(`${location.origin}/api/subjects`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization-Token': this.$store.state.auth_token
+                        'Authorization-Token': this.$store.state.auth_token, // Add auth token if needed
                     },
-                    body: JSON.stringify(this.newSubject)
+                    body: formData, // Use FormData for file upload
                 });
-
+        
                 if (!response.ok) throw new Error('Failed to add subject');
-
+        
+                // Reset form and close modal
                 this.showAddSubjectModal = false;
-                this.newSubject = { name: '', description: '' };
-                await this.fetchSubjects();
+                this.newSubject = { name: '', description: '', image: null };
+                await this.fetchSubjects(); // Refresh the subject list
             } catch (error) {
                 console.error(error);
                 alert('Error adding subject');
@@ -178,6 +199,10 @@ export default {
 
         createQuiz() {
             this.$router.push('/admin/create-quiz');
-        }
+        },
+
+        handleFileUpload(event) {
+            this.newSubject.image = event.target.files[0]; // Capture selected image
+        },
     }
 };

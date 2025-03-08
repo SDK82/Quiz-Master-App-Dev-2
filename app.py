@@ -1,13 +1,20 @@
-from flask import Flask
+from flask import Flask , request, jsonify
 from backend.config import LocalDevelopmentConfig
 from backend.models import db
 from backend.models import User, Role
 from flask_security import Security, SQLAlchemyUserDatastore
 from flask_caching import Cache
 from backend.celery.celery_factory import celery_init_app
+from werkzeug.utils import secure_filename
+import os
 
 def create_app():
-    app = Flask(__name__  ,template_folder='frontend', static_folder='frontend', static_url_path='/static')                       
+    app = Flask(__name__  ,template_folder='frontend', static_folder='frontend', static_url_path='/static')
+
+    UPLOAD_FOLDER = 'uploads/subjects'
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Ensure the folder exists
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER    
+                       
     app.config.from_object(LocalDevelopmentConfig)
     app.config['SECURITY_TRACKABLE'] = True
     db.init_app(app)

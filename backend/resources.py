@@ -9,12 +9,23 @@ cache = app.cache
 
 api = Api(prefix='/api')
 
+
+import os
+from werkzeug.utils import secure_filename
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+UPLOAD_FOLDER = 'uploads/subjects'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Ensure the upload folder exists
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+
 # Marshaling fields
-
-
-
-# Marshaling fields
-subject_fields = {'id': fields.Integer, 'name': fields.String, 'description': fields.String}
+subject_fields = {'id': fields.Integer, 'name': fields.String, 'description': fields.String, 'image': fields.String}
 chapter_fields = {'id': fields.Integer, 'name': fields.String, 'description': fields.String, 'subject_id': fields.Integer, 'subject_name': fields.String,    'no_of_questions': fields.Integer}
 question_fields = {
     'id': fields.Integer,
@@ -31,6 +42,10 @@ quiz_fields = {'id': fields.Integer, 'chapter_id': fields.Integer, 'remarks': fi
 score_fields = {'id': fields.Integer, 'quiz_id': fields.Integer, 'user_id': fields.Integer, 'total_score': fields.Float, 'timestamp': fields.DateTime, 'time_taken': fields.Integer}
 
 # Subject API
+from flask import request
+from werkzeug.utils import secure_filename
+import os
+
 class SubjectApi(Resource):
     @auth_required('token')
     @cache.memoize(timeout=5)
@@ -46,17 +61,42 @@ class SubjectApi(Resource):
     @auth_required('token')
     def post(self):
         if any(role.name == 'admin' for role in current_user.roles):
-            parser = reqparse.RequestParser()
-            parser.add_argument('name', required=True, help='Name is required')
-            parser.add_argument('description', required=True, help='Description is required')
-            args = parser.parse_args()
+            # Parse form data
+            name = request.form.get('name')
+            description = request.form.get('description')
 
-            new_subject = Subject(name=args['name'], description=args['description'])
+            if not name or not description:
+                return {'message': 'Name and description are required'}, 400
+
+            # Handle image upload
+            image_file = request.files.get('image')
+            image_filename = None
+
+            if image_file:
+                # Ensure the filename is secure
+                filename = secure_filename(image_file.filename)
+                # Save the file to the upload folder
+                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                image_file.save(image_path)
+                # Store the relative URL path
+                image_filename = f"/uploads/subjects/{filename}"
+
+            # Create a new subject
+            new_subject = Subject(
+                name=name,
+                description=description,
+                image=image_filename  # This will now work
+            )
             db.session.add(new_subject)
             db.session.commit()
-            return {'message': 'Subject created successfully'}, 201
-        return {'message': 'You are not authorized to create subjects'}, 403
 
+            return {
+                'message': 'Subject created successfully',
+                'image_url': image_filename
+            }, 201
+        return {'message': 'You are not authorized to create subjects'}, 403
+    
+    
     @auth_required('token')
     def delete(self, subject_id):
         if not subject_id:

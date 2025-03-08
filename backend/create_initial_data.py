@@ -12,7 +12,8 @@ with app.app_context():
         # Create a subject if it doesn't exist
         subject = Subject(
             name='Mathematics',
-            description='Mathematics is the study of numbers, quantity, space, structure, and change.'
+            description='Mathematics is the study of numbers, quantity, space, structure, and change.',
+            image='maths.jpg'
         )
         db.session.add(subject)
         db.session.commit()
