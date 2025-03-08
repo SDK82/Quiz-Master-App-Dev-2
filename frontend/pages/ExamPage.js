@@ -2,11 +2,14 @@ export default {
     props: ["quizId"],
     template: `
     <div class="container my-4">
-        <!-- Timer -->
-        <div class="text-end mb-3">
+    <div>    
+    <button class="btn btn-danger mt-3"
+    @click="exit">↩ Exit Exam</button>
+    <!-- Timer -->
+              <div class="text-end mb-3">
             <h4>Time Remaining: {{ formattedTime }}</h4>
         </div>
-
+    </div>
         <!-- Main Exam Layout -->
         <div class="row">
             <!-- Question Navigation Panel -->
@@ -31,6 +34,9 @@ export default {
                 >
                     {{ index + 1 }}
                 </button>
+                    </div>
+                    <div class="text-center mt-3">
+                    <button @click="submitQuiz" class="btn btn-primary">Submit Quiz</button>
                     </div>
                 </div>
             </div>
@@ -90,20 +96,11 @@ export default {
                             <button
                                 class="btn btn-success"
                                 @click="nextQuestion"
-                                v-if="currentQuestionIndex < questions.length - 1"
+                               
                             >
                                 Next
                             </button>
 
-                            <!-- Submit Button (Shows only on the last question) -->
-                            <button 
-                                class="btn btn-success" 
-                                @click="submitQuiz" 
-                                v-if="currentQuestionIndex === questions.length - 1"
-                                :disabled="quizCompleted"
-                            >
-                                Submit Quiz
-                            </button>
                         </div>
 
                     <!-- Quiz Completion Message -->
@@ -214,11 +211,12 @@ export default {
             }
             if (this.currentQuestionIndex < this.questions.length - 1) {
                 this.visitedQuestions[this.currentQuestionIndex] = true;
-                this.currentQuestionIndex++;
+                this.currentQuestionIndex++;}
                 
-            } else {
-                this.submitQuiz();
+            else {
+                this.currentQuestionIndex = 0;
             }
+            
             if(quizCompleted){
                 if(this.currentQuestionIndex < this.questions.length - 1) {
                     this.currentQuestionIndex++;
@@ -297,9 +295,19 @@ export default {
         goBack() {
             this.$router.go(-1);
         },
+        exit() {
+            if (confirm("Are you sure you want to exit the exam?")) {
+                this.$router.go(-1);
+            }
+        },
+
+                
+
+            
+        
     },
 
     beforeUnmount() {
         this.stopTimer();
     },
-};
+}
