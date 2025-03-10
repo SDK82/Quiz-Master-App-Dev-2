@@ -6,10 +6,12 @@ import Footer from "./components/Footer.js"
 const app = new Vue({
     el: '#app', //mount with the id of app
     template: `
-        <div> 
+        <div id="app" class="d-flex flex-column min-vh-100"> 
             <Navbar/>
-            <router-view></router-view>
-            <Footer v-if="!$route.meta.hideFooter"/> <!-- Conditionally render the footer -->
+            <div class="flex-grow-1">
+                <router-view></router-view>
+            </div>
+            <Footer v-if="!$route.meta.hideFooter"/> 
         </div>
 
         `,

@@ -1,3 +1,4 @@
+from uuid import uuid4
 from flask import current_app as app, jsonify, render_template, request
 from backend.models import db, User, Role
 from flask_security import auth_required, login_required, current_user
@@ -56,7 +57,9 @@ def login():
             'token': user.get_auth_token(),  # Ensure this method exists or use another method for token
             'email': user.email,
             'role': user.roles[0].name if user.roles else 'user',  # Ensure role exists
-            'id': user.id
+            'id': user.id,
+            'full_name': user.full_name,
+            'loggedIn': True
         }), 200
 
     return jsonify({'message': 'Invalid credentials'}), 401
@@ -106,6 +109,8 @@ def register():
             full_name=full_name,
             dob=dob,
             qualification=qualification,
+            created_at=datetime.utcnow(),
+            fs_uniquifier=str(uuid4()) 
         )
         db.session.add(new_user)
         db.session.commit()

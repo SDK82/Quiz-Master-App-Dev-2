@@ -15,8 +15,8 @@ export default {
         </div>
   
         <!-- Right Section: Social Media Links -->
-        <div class="col-md-4 text-center text-md-end">
-          <h5 class="fw-bold mb-3">Follow Us</h5>
+        <div class="col-md-4 text-start text-md-end">
+          <h5 class="fw-bold mb-3 md-4">Follow Us</h5>
           <div class="social-icons">
             <a href="#" class="text-white me-3" title="Facebook">
               <img src="uploads/subjects/facebook.png" alt="Facebook" class="social-icon" />
