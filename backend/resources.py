@@ -151,6 +151,27 @@ class ChapterApi(Resource):
         return {'message': 'You are not authorized to create chapters'}, 403
     
     @auth_required('token')
+    def put(self, chapter_id):
+        if any(role.name == 'admin' for role in current_user.roles):
+            parser = reqparse.RequestParser()
+            parser.add_argument('name', required=True, help='Name is required')
+            parser.add_argument('description', required=True, help='Description is required')
+            args = parser.parse_args()
+
+            # Find the chapter by ID
+            chapter = Chapter.query.get(chapter_id)
+            if not chapter:
+                return {'message': 'Chapter not found'}, 404
+
+            # Update chapter details
+            chapter.name = args['name']
+            chapter.description = args['description']
+            db.session.commit()
+
+            return {'message': 'Chapter updated successfully'}, 200
+        return {'message': 'You are not authorized to update chapters'}, 403
+    
+    @auth_required('token')
     def delete(self, chapter_id):
         if not chapter_id:
             return {'message': 'Chapter ID is required'}, 400

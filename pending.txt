@@ -1,3 +1,4 @@
 models.py - Quiz - created_at, difficulty
 admindashboard - check same name subject reupload
 models - add total score and max score
+registration of user

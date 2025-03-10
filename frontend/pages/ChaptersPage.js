@@ -9,13 +9,14 @@ export default {
 
         <div  class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             <div 
-                class="col chapter-card" 
+                class="col " 
                 v-for="chapter in chapters" 
                 :key="chapter.id"
                 @click="goToQuizzes(chapter.id)"
             >
-                <div class="card h-100 shadow-lg border-0 rounded-lg">
-                    <div class="card-body text-center">
+            <div class="chapter-box p-4 rounded-lg shadow-sm bg-white text-center hover-effect transition-all border border-3 ">
+
+            <div class="card-body text-center">
                         <h4 class="card-title text-primary fw-bold">{{ chapter.name }}</h4>
                         <p class="card-text text-muted">
                             {{ chapter.description || 'No description available.' }}

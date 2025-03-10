@@ -40,6 +40,9 @@ def create_app():
     def uploaded_file(filename):
         return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+    # Access the uploaded_file function to avoid compile error
+    app.add_url_rule('/uploads/subjects/<filename>', 'uploaded_file', uploaded_file)
+    
     return app
 
 app = create_app()

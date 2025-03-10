@@ -5,6 +5,7 @@ const Home = {
     </div>
     `
 }
+import HomePage from '../pages/HomePage.js';
 import LoginPage from '../pages/LoginPage.js';
 import RegisterPage from '../pages/RegisterPage.js';
 import UserHome from '../pages/UserHome.js';
@@ -22,14 +23,14 @@ import store from './store.js';
 
 
 const routes = [
-    {path : '/', component: Home},
+    {path : '/', component: HomePage},
     {path : '/login', component: LoginPage},
     {path : '/register', component: RegisterPage},
     {path : '/user', component: UserHome, meta: {requiresLogin: true , role: 'user'}},
     { path: "/subject/:subjectId/chapters", component: ChaptersPage, meta: {requiresLogin: true} },
     { path: "/chapter/:chapterId/quizzes", component: QuizPage, props: true, meta: {requiresLogin: true}  },
     {path : "/admin-dashboard", component: AdminDashboard, meta: {requiresLogin: true, role: 'admin'}},
-    {path: '/quiz/:quizId', component: ExamPage ,meta: {requiresLogin: true}, props: true},
+    {path: '/quiz/:quizId', component: ExamPage ,name: 'ExamPage',meta: {requiresLogin: true,hideFooter: true} , props: true},
     {path: '/scores', component: ScorePage, meta: {requiresLogin: true}},
     {path: '/admin/:subjectId/chapters', component: AdminChapter, meta: {requiresLogin: true, role: 'admin'}},
     {path: '/admin/create-quiz', component: CreateQuiz, meta: {requiresLogin: true, role: 'admin'}},
@@ -47,13 +48,13 @@ router.beforeEach((to, from, next) => {
         // Check if the user is logged in
         if (!store.state.loggedIn) {
             // Redirect to the login page
-            next({ path: '/login' });
+            next({ path: '/' });
         } else if (to.meta.role && to.meta.role !== store.state.role) {
             // Redirect based on role mismatch
             if (store.state.role === 'admin') {
-                next({ path: '/admin-dashboard' }); // Redirect admin to AdminDashboard
+                next({ path: '/' }); // Redirect admin to AdminDashboard
             } else if (store.state.role === 'user') {
-                next({ path: '/user' }); // Redirect user to UserHome
+                next({ path: '/' }); // Redirect user to UserHome
             } else {
                 next({ path: '/' }); // Redirect to default home page
             }
@@ -72,9 +73,9 @@ router.beforeEach((to, from, next) => {
     if (to.path === '/login' && store.state.loggedIn) {
         // Redirect logged-in users based on role
         if (store.state.role === 'admin') {
-            next({ path: '/admin-dashboard' });
+            next({ path: '/' });
         } else if (store.state.role === 'user') {
-            next({ path: '/user' });
+            next({ path: '/' });
         } else {
             next({ path: '/' });
         }

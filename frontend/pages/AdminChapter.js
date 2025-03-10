@@ -6,7 +6,7 @@ export default {
         <!-- Heading -->
         <div v-if="chapters.length" class="text-center mb-5">
             <h1 class="display-4 fw-bold text-dark">Chapters in <span class="text-primary">{{ subjectName }}</span></h1>
-        
+        </div>
 
         <!-- Chapter List -->
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
@@ -15,8 +15,8 @@ export default {
                 v-for="chapter in chapters" 
                 :key="chapter.id"
             >
-                <div class="chapter-box p-4 rounded-lg shadow-sm bg-white text-center hover-effect">
-                    <h4 class="text-primary fw-bold mb-3">{{ chapter.name }}</h4>
+            <div class="chapter-box p-4 rounded-lg shadow-sm bg-white text-center hover-effect transition-all border border-3 ">
+                  <h4 class="text-primary fw-bold mb-3">{{ chapter.name }}</h4>
                     <p class="text-muted mb-4">
                         {{ chapter.description || 'No description available.' }}
                     </p>
@@ -28,19 +28,17 @@ export default {
                 </div>
             </div>
         </div>
-                <!-- Add Chapter Button -->
-                <div class="text-center mt-5">
-                <button class="btn btn-primary btn-lg" @click="showAddChapterModal = true">
-                    Add Chapter
-                </button>
-            </div>
+
+        <!-- Add Chapter Button -->
+        <div class="text-center mt-5">
+            <button class="btn btn-primary btn-lg" @click="showAddChapterModal = true">
+                Add Chapter
+            </button>
         </div>
 
-
-
         <!-- Go Back Button -->
-        <div class="text mt-4">
-            <button class="btn btn-secondary" @click="goBack">⬅️ Go Back</button>
+        <div class=" mt-4">
+            <button class="btn btn-danger" @click="goBack">⬅️ Go Back</button>
         </div>
 
         <!-- No Chapters Message -->
@@ -50,47 +48,47 @@ export default {
         </div>
 
         <!-- Add Chapter Modal -->
-        <div v-if="showAddChapterModal" class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
-        <div class="modal-content bg-white p-4 rounded shadow" style="width: 100%; max-width: 500px;">
-            <h3 class="mb-4 text-center">Add New Chapter</h3>
-            <form @submit.prevent="addChapter">
-                <div class="mb-3">
-                    <label for="chapterName" class="form-label">Chapter Name</label>
-                    <input v-model="newChapter.name" type="text" id="chapterName" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label for="chapterDescription" class="form-label">Description</label>
-                    <textarea v-model="newChapter.description" id="chapterDescription" class="form-control" rows="4" required></textarea>
-                </div>
-                <div class="d-flex justify-content-end gap-2 mt-4">
-                    <button type="button" class="btn btn-secondary" @click="showAddChapterModal = false">Cancel</button>
-                    <button type="submit" class="btn btn-success">Add Chapter</button>
-                </div>
-            </form>
+        <div v-if="showAddChapterModal" class="modal-overlay"  style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 999;">
+            <div class="modal-content"  style="background: white; padding: 20px; border-radius: 8px; width: 400px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+                <h3 class="mb-4 text-center">Add New Chapter</h3>
+                <form @submit.prevent="addChapter">
+                    <div class="mb-3">
+                        <label for="chapterName" class="form-label">Chapter Name</label>
+                        <input v-model="newChapter.name" type="text" id="chapterName" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="chapterDescription" class="form-label">Description</label>
+                        <textarea v-model="newChapter.description" id="chapterDescription" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <button type="button" class="btn btn-secondary" @click="showAddChapterModal = false">Cancel</button>
+                        <button type="submit" class="btn btn-success">Add Chapter</button>
+                    </div>
+                </form>
+            </div>
         </div>
-    
-    </div>
 
-    <!-- Edit Chapter Modal -->
-    <div v-if="showEditChapterModal" class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
-        <div class="modal-content bg-white p-4 rounded shadow" style="width: 100%; max-width: 500px;">
-            <h3 class="mb-4 text-center">Edit Chapter</h3>
-            <form @submit.prevent="updateChapter">
-                <div class="mb-3">
-                    <label for="chapterName" class="form-label
-                    ">Chapter Name</label>
-                    <input v-model="editChapterData.name" type="text" id="chapterName" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label for="chapterDescription" class="form-label">Description</label>
-                    <textarea v-model="editChapterData.description" id="chapterDescription" class="form-control" rows="4" required></textarea>
-                </div>
-                <div class="d-flex justify-content-end gap-2 mt-4">
-                    <button type="button" class="btn btn-secondary" @click="showEditChapterModal = false">Cancel</button>
-                    <button type="submit" class="btn btn-success">Update Chapter</button>
-                </div>
-            </form>
-        </div>  
+        <!-- Edit Chapter Modal -->
+        <div v-if="showEditChapterModal" class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 999;">
+            <div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; width: 400px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+                <h3 class="mb-4 text-center">Edit Chapter</h3>
+                <form @submit.prevent="updateChapter">
+                    <div class="mb-3">
+                        <label for="chapterName" class="form-label">Chapter Name</label>
+                        <input v-model="editChapterData.name" type="text" id="chapterName" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="chapterDescription" class="form-label">Description</label>
+                        <textarea v-model="editChapterData.description" id="chapterDescription" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <button type="button" class="btn btn-secondary" @click="showEditChapterModal = false">Cancel</button>
+                        <button type="submit" class="btn btn-success">Update Chapter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
   `,
 
   data() {
@@ -98,24 +96,15 @@ export default {
       subjectName: "",
       chapters: [],
       showAddChapterModal: false,
-      newChapter: { name: '', description: '', subject_id: '' }
+      showEditChapterModal: false,
+      newChapter: { name: '', description: '', subject_id: '' },
+      editChapterData: { id: null, name: '', description: '' }
     };
   },
   async mounted() {
     await this.fetchChapters();
   },
   methods: {
-  async fetchQiuzzes() {
-    const chapterId = this.$route.params.chapterId;
-    const response = await fetch(
-      `${location.origin}/api/chapters/${chapterId}/quizzes`,
-      {
-        headers: {
-          "Authorization-Token": this.$store.state.auth_token,
-        },
-      })
-    },
-    
     async fetchChapters() {
       const subjectId = this.$route.params.subjectId;
       const response = await fetch(
@@ -135,22 +124,6 @@ export default {
       }
 
       this.chapters = data;
-    },
-    updateChapter() {
-      // Update chapter
-    },
-    editChapter(chapterId) {
-      // Edit chapter
-    },
-    getChaptersForSubject(subjectId) {
-      return this.chapters[subjectId] || [];
-    },
-
-    goToQuizzes(chapterId) {
-      this.$router.push(`/admin/quizzes/${chapterId}`);
-    },
-    goBack() {
-      this.$router.go(-1);
     },
 
     async addChapter() {
@@ -183,6 +156,7 @@ export default {
         alert('Error adding chapter');
       }
     },
+
     async deleteChapter(chapterId) {
       if (!confirm("Are you sure you want to delete this chapter?")) return;
 
@@ -201,6 +175,43 @@ export default {
         console.error(error);
         alert('Error deleting chapter');
       }
+    },
+
+    editChapter(chapterId) {
+      const chapter = this.chapters.find(ch => ch.id === chapterId);
+      if (chapter) {
+        this.editChapterData = { ...chapter };
+        this.showEditChapterModal = true;
+      }
+    },
+
+    async updateChapter() {
+      try {
+        const response = await fetch(`${location.origin}/api/chapters/${this.editChapterData.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization-Token': this.$store.state.auth_token
+          },
+          body: JSON.stringify(this.editChapterData)
+        });
+
+        if (!response.ok) throw new Error('Failed to update chapter');
+
+        this.showEditChapterModal = false;
+        await this.fetchChapters();
+      } catch (error) {
+        console.error(error);
+        alert('Error updating chapter');
+      }
+    },
+
+    goToQuizzes(chapterId) {
+      this.$router.push(`/admin/quizzes/${chapterId}`);
+    },
+
+    goBack() {
+      this.$router.go(-1);
     }
   },
   components: {

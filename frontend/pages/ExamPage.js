@@ -35,9 +35,10 @@ export default {
                     {{ index + 1 }}
                 </button>
                     </div>
-                    <div class="text-center mt-3">
-                    <button @click="submitQuiz" class="btn btn-primary">Submit Quiz</button>
-                    </div>
+
+                </div>
+                <div class="text-center mt-3">
+                <button @click="submitQuiz" class="btn btn-primary" :disabled="quizCompleted" >Submit Quiz</button>
                 </div>
             </div>
 
