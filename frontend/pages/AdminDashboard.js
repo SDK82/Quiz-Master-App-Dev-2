@@ -33,7 +33,8 @@ export default {
                                 <th>No of Quizzes</th>
                                 <th>Actions</th>
                             </tr>
-                            <tr v-for="chapter in getChaptersForSubject(subject.id)" :key="chapter.id">
+                            <tr v-for="chapter in getChaptersForSubject(subject.id)" :key="chapter.id" class='text-center'>     
+                            
                                 <td>{{ chapter.name }}</td>
                                 <td>{{ chapter.no_of_questions }}</td>
                                 <td>

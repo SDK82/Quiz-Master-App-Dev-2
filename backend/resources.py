@@ -1,9 +1,43 @@
 from flask_login import current_user
 from flask_restful import Resource, Api, fields, marshal_with, reqparse
-from backend.models import db, Subject, Chapter, Question, Quiz, Score
+from backend.models import db, User, Subject, Chapter, Question, Quiz, Score
 from flask_security import auth_required
 from flask import current_app as app, request
+from werkzeug.security import generate_password_hash
 from datetime import datetime
+
+def put(self, id):
+    parser = reqparse.RequestParser()
+    parser.add_argument('email', required=False)
+    parser.add_argument('full_name', required=False)
+    parser.add_argument('qualification', required=False)
+    parser.add_argument('dob', required=False)
+    parser.add_argument('password', required=False)
+    parser.add_argument('confirm_password', required=False)
+    args = parser.parse_args()
+
+    account = User.query.get(id)
+    if not account:
+        return {'message': 'Account not found'}, 404
+
+    # Update only provided fields
+    if args['email']:
+        account.email = args['email']
+    if args['full_name']:
+        account.full_name = args['full_name']
+    if args['qualification']:
+        account.qualification = args['qualification']
+    if args['dob']:
+        account.dob = args['dob']
+
+    # Handle password change separately
+    if args['password']:
+        if args['password'] != args['confirm_password']:
+            return {'message': 'Passwords do not match'}, 400
+        account.password = generate_password_hash(args['password'])  # Hash the password
+
+    db.session.commit()
+    return {'message': 'Account updated successfully'}, 200
 
 cache = app.cache
 
@@ -25,6 +59,7 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 
 # Marshaling fields
+account_fields = {'id': fields.Integer, 'email': fields.String, 'full_name': fields.String, 'roles': fields.List(fields.String), 'password': fields.String, 'qualification': fields.String, 'dob': fields.String, 'created_at': fields.DateTime}
 subject_fields = {'id': fields.Integer, 'name': fields.String, 'description': fields.String, 'image': fields.String}
 chapter_fields = {'id': fields.Integer, 'name': fields.String, 'description': fields.String, 'subject_id': fields.Integer, 'subject_name': fields.String,    'no_of_questions': fields.Integer}
 question_fields = {
@@ -45,6 +80,62 @@ score_fields = {'id': fields.Integer, 'quiz_id': fields.Integer, 'user_id': fiel
 from flask import request
 from werkzeug.utils import secure_filename
 import os
+
+class AccountApi(Resource):
+    @auth_required('token')
+    @marshal_with(account_fields)
+    def get(self, id=None):
+        if id:
+            account = User.query.get(id)
+            if not account:
+                return {'message': 'Account not found'}, 404
+            return account
+        
+    def put(self, id):
+        parser = reqparse.RequestParser()
+        parser.add_argument('email', required=False)
+        parser.add_argument('full_name', required=False)
+        parser.add_argument('qualification', required=False)
+        parser.add_argument('dob', required=False)
+        parser.add_argument('password', required=False)
+        parser.add_argument('confirm_password', required=False)
+        args = parser.parse_args()
+
+        account = User.query.get(id)
+        if not account:
+            return {'message': 'Account not found'}, 404
+
+        try:
+            # Update only provided fields
+            if args['email']:
+                account.email = args['email']
+            if args['full_name']:
+                account.full_name = args['full_name']
+            if args['qualification']:
+                account.qualification = args['qualification']
+            if args['dob']:
+                account.dob = args['dob']
+
+            # Handle password change separately
+            if args['password']:
+                if args['password'] != args['confirm_password']:
+                    return {'message': 'Passwords do not match'}, 400
+                account.password = generate_password_hash(args['password'])  # Hash the password
+
+            db.session.commit()
+            return {'message': 'Account updated successfully'}, 200
+        except Exception as e:
+            db.session.rollback()  # Rollback in case of error
+            return {'message': f'An error occurred: {str(e)}'}, 500
+    
+    def delete(self, id):
+        account = User.query.get(id)
+        if not account:
+            return {'message': 'Account not found'}, 404
+        db.session.delete(account)
+        db.session.commit()
+        return {'message': 'Account deleted'}, 200
+        
 
 class SubjectApi(Resource):
     @auth_required('token')
@@ -441,7 +532,7 @@ api.add_resource(ChapterApi, '/chapters', '/chapters/<int:chapter_id>', '/subjec
 api.add_resource(QuizQuestionsApi, '/quizzes/<int:quiz_id>/questions','/questions')
 api.add_resource(QuizApi, '/quizzes', '/quizzes/<int:quiz_id>', '/chapter/<int:chapter_id>/quizzes')
 api.add_resource(ScoreApi, '/scores', '/scores/<int:user_id>')
-
+api.add_resource(AccountApi, '/account', '/account/<int:id>')
 
 
 

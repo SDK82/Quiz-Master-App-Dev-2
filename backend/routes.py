@@ -120,3 +120,4 @@ def register():
         db.session.rollback()
         print("Error during user creation:", str(e))
         return jsonify({'message': f'Error creating user: {str(e)}'}), 400
+    

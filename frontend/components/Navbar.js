@@ -12,7 +12,7 @@ export default {
         
         <!-- Navbar links -->
         <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
+          <ul class="navbar-nav me-auto">
             <li class="nav-item">
               <router-link to="/" class="nav-link" exact-active-class="active">Home</router-link>
             </li>
@@ -42,24 +42,37 @@ export default {
             <li class="nav-item" v-if="isLoggedIn && role === 'admin'">
               <router-link to="/admin-summary" class="nav-link" exact-active-class="active">Summary</router-link>
             </li> 
-                 
-            <!-- Show Logout if logged in -->
             <li class="nav-item" v-if="isLoggedIn">
               <button class="nav-link btn btn-link" @click="logout">Logout</button>
             </li>
+          </ul>
+
+          <!-- Right side of the Navbar -->
+          <ul class="navbar-nav ms-auto" v-if="isLoggedIn">
+            <li class="nav-item d-flex align-items-center">
+              <span class="nav-link text-white fw-bold">
+                <span class="me-2" style="font-size: 1.5rem;">👤</span> {{ name }}
+              </span>
+            </li>
+
           </ul>
         </div>
       </div>
     </nav>
   `,
+
   computed: {
     isLoggedIn() {
       return this.$store.state.loggedIn;
     },
     role() {
       return this.$store.state.role;
+    },
+    name() {
+      return this.$store.state.full_name;
     }
   },
+
   methods: {
     logout() {
       this.$store.commit('logout');

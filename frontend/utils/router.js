@@ -18,6 +18,8 @@ import AdminChapter from '../pages/AdminChapter.js';
 import CreateQuiz from '../pages/CreateQuiz.js';
 import AdminQuizpage from '../pages/AdminQuizpage.js';
 import ScoreSummary from '../pages/ScoreSummary.js';
+import AccountPage from '../pages/AccountPage.js';
+import EditProfile from '../pages/EditProfile.js';
 
 import store from './store.js';
 
@@ -36,6 +38,8 @@ const routes = [
     {path: '/admin/create-quiz', component: CreateQuiz, meta: {requiresLogin: true, role: 'admin'}},
     {path : '/admin/quizzes/:chapterId', component: AdminQuizpage, meta: {requiresLogin: true, role: 'admin'}},
     {path : '/score-summary', component: ScoreSummary, meta: {requiresLogin: true}},
+    {path : '/account', component: AccountPage, meta: {requiresLogin: true}},
+    {path : '/edit-profile', component: EditProfile, meta: {requiresLogin: true},props: true},
     
 ]
 
