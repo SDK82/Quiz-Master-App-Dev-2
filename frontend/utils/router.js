@@ -45,20 +45,21 @@ const routes = [
 
 const router = new VueRouter({
     routes
-})
+  });
+  
 
-router.beforeEach((to, from, next) => {
+  router.beforeEach((to, from, next) => {
     if (to.matched.some((record) => record.meta.requiresLogin)) {
         // Check if the user is logged in
         if (!store.state.loggedIn) {
             // Redirect to the login page
-            next({ path: '/' });
+            next({ path: '/login' });
         } else if (to.meta.role && to.meta.role !== store.state.role) {
             // Redirect based on role mismatch
             if (store.state.role === 'admin') {
-                next({ path: '/' }); // Redirect admin to AdminDashboard
+                next({ path: '/admin-dashboard' }); // Redirect admin to AdminDashboard
             } else if (store.state.role === 'user') {
-                next({ path: '/' }); // Redirect user to UserHome
+                next({ path: '/user' }); // Redirect user to UserHome
             } else {
                 next({ path: '/' }); // Redirect to default home page
             }
@@ -77,9 +78,9 @@ router.beforeEach((to, from, next) => {
     if (to.path === '/login' && store.state.loggedIn) {
         // Redirect logged-in users based on role
         if (store.state.role === 'admin') {
-            next({ path: '/' });
+            next({ path: '/admin-dashboard' });
         } else if (store.state.role === 'user') {
-            next({ path: '/' });
+            next({ path: '/user' });
         } else {
             next({ path: '/' });
         }
@@ -87,6 +88,7 @@ router.beforeEach((to, from, next) => {
         next(); // Proceed normally
     }
 });
+
 
 
 

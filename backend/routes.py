@@ -6,6 +6,7 @@ from flask_security.utils import verify_password, hash_password
 from datetime import datetime
 from backend.celery.tasks import add
 from celery.result import AsyncResult
+import os
 
 datastore = app.security.datastore
 cache = app.cache
@@ -121,3 +122,9 @@ def register():
         print("Error during user creation:", str(e))
         return jsonify({'message': f'Error creating user: {str(e)}'}), 400
     
+from flask import send_from_directory
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                            'favicon.ico', mimetype='image/vnd.microsoft.icon')

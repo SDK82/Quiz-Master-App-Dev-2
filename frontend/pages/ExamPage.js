@@ -2,13 +2,14 @@ export default {
     props: ["quizId"],
     template: `
     <div class="container my-4">
-        <div>    
-            <button class="btn btn-danger mt-3" @click="exit">↩ Exit Exam</button>
-            <!-- Timer -->
-            <div class="text-end mb-3">
-                <h4>Time Remaining: {{ formattedTime }}</h4>
-            </div>
+    <div>    
+    <button class="btn btn-danger mt-3"
+    @click="exit">↩ Exit Exam</button>
+    <!-- Timer -->
+              <div class="text-end mb-3">
+            <h4>Time Remaining: {{ formattedTime }}</h4>
         </div>
+    </div>
         <!-- Main Exam Layout -->
         <div class="row">
             <!-- Question Navigation Panel -->
@@ -16,26 +17,27 @@ export default {
                 <div class="card shadow-sm p-3">
                     <h5 class="text-center">Questions</h5>
                     <div class="d-flex flex-wrap">
-                        <button
-                            v-for="(question, index) in questions"
-                            :key="index"
-                            type="button"
-                            class="btn m-1"
-                            :class="{
-                                'btn-primary': currentQuestionIndex === index,
-                                'btn-outline-primary': !quizCompleted && selectedOptions[index] === undefined && currentQuestionIndex !== index && !visitedQuestions[index],
-                                'btn-info': selectedOptions[index] !== undefined && !quizCompleted,
-                                'btn-success': quizCompleted && isCorrect(index),
-                                'btn-danger': (quizCompleted && !isCorrect(index)) || (!quizCompleted && visitedQuestions[index] && selectedOptions[index] === undefined),
-                            }"
-                            @click="goToQuestion(index)"
-                        >
-                            {{ index + 1 }}
-                        </button>
+                    <button
+                    v-for="(question, index) in questions"
+                    :key="index"
+                    type="button"
+                    class="btn m-1"
+                    :class="{
+                        'btn-primary': currentQuestionIndex === index,
+                        'btn-outline-primary': !quizCompleted && selectedOptions[index] === undefined && currentQuestionIndex !== index && !visitedQuestions[index],
+                        'btn-info': selectedOptions[index] !== undefined && !quizCompleted,
+                        'btn-success': quizCompleted && isCorrect(index),
+                        'btn-danger': (quizCompleted && !isCorrect(index)) || (!quizCompleted && visitedQuestions[index] && selectedOptions[index] === undefined),
+                    }"
+                    
+                    @click="goToQuestion(index)"
+                >
+                    {{ index + 1 }}
+                </button>
                     </div>
-                </div>
-                <div class="text-center mt-3">
-                    <button @click="submitQuiz" class="btn btn-primary" :disabled="quizCompleted">Submit Quiz</button>
+                    <div class="text-center mt-3">
+                    <button @click="submitQuiz" class="btn btn-primary">Submit Quiz</button>
+                    </div>
                 </div>
             </div>
 
@@ -48,7 +50,7 @@ export default {
                 <div v-else>
                     <div v-if="currentQuestionIndex < questions.length">
                         <div class="card shadow-sm p-4">
-                            <h5>Question {{ currentQuestionIndex + 1 }}:-</h5>
+                            <h5 >Question {{ currentQuestionIndex + 1 }}:-</h5>
                             <h4 class="mb-3">{{ currentQuestion.question_statement }}</h4>
                             <div class="form-check" v-for="(option, index) in options" :key="index">
                                 <input
@@ -73,34 +75,52 @@ export default {
 
                         <!-- Navigation Buttons -->
                         <div class="d-flex justify-content-between mt-3">
-                            <button class="btn" style="color: white; background-color:rgb(89, 0, 255);" @click="previousQuestion" :disabled="currentQuestionIndex === 0">
+                            <button
+                                class="btn" 
+                                style="color: white; background-color:rgb(89, 0, 255);"
+                                @click="previousQuestion"
+                                :disabled="currentQuestionIndex === 0"
+                            >
                                 Previous
                             </button>
-                            <button class="btn btn-warning" @click="skipQuestion" :disabled="quizCompleted">
+
+                            <button 
+                                class="btn btn-warning" 
+                                @click="skipQuestion"
+                                :disabled="quizCompleted"
+                            >
                                 Skip
                             </button>
-                            <button class="btn btn-success" @click="nextQuestion">
+
+                            <!-- Next Button (Shows for all except last question) -->
+                            <button
+                                class="btn btn-success"
+                                @click="nextQuestion"
+                               
+                            >
                                 Next
                             </button>
+
                         </div>
 
-                        <!-- Quiz Completion Message -->
-                        <div v-if="quizCompleted" class="text-center mt-4">
-                            <h2>Quiz Completed!</h2>
-                            <p>Your score: {{ score }} / {{ questions.length }}</p>
-                            <button class="btn btn-success" @click="goBack">Return to Quizzes</button>
-                        </div>
+                    <!-- Quiz Completion Message -->
+                    <div v-if="quizCompleted" class="text-center mt-4">
+                        <h2>Quiz Completed!</h2>
+                        <p>Your score: {{ score }} / {{ questions.length }}</p>
+                        <button class="btn btn-success" @click="goBack">Return to Quizzes</button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>`,
+    </div>
+    </div>
+    `,
 
     data() {
         return {
             questions: [],
             currentQuestionIndex: 0,
-            selectedOptions: [],
+            selectedOptions: [], // Stores selected answers
             score: 0,
             timeRemaining: 0,
             timeElapsed: 0,  
@@ -113,17 +133,30 @@ export default {
     },
 
     async mounted() {
-        // Add beforeunload event only for the exam page
-        window.addEventListener("beforeunload", this.preventReload);
+        const res = await fetch(`${location.origin}/api/quizzes/${this.quizId}`, {
+            headers: { 'Authorization-Token': this.$store.state.auth_token },
+        });
+        const quiz = await res.json();
+        this.quiz = quiz;
 
-        await this.fetchQuizData();
+        // Convert time_duration ("MM:SS") to seconds
+        if (quiz.time_duration) {
+            const [minutes, seconds] = quiz.time_duration.split(":").map(Number);
+            this.timeRemaining = (minutes * 60) + seconds;
+        } else {
+            this.timeRemaining = 1800;
+        }
+
+        // Fetch quiz questions
+        const response = await fetch(`${location.origin}/api/quizzes/${this.quizId}/questions`, {
+            headers: { 'Authorization-Token': this.$store.state.auth_token },
+        });
+        const questions = await response.json();
+        this.questions = questions;
+        this.selectedOptions = new Array(questions.length).fill(undefined);
+
+        // Start the timer
         this.startTimer();
-    },
-
-    beforeUnmount() {
-        // Remove event listener when leaving the exam page
-        window.removeEventListener("beforeunload", this.preventReload);
-        this.stopTimer();
     },
 
     computed: {
@@ -139,35 +172,21 @@ export default {
             ];
         },
         formattedTime() {
+            if (isNaN(this.timeRemaining) || this.timeRemaining < 0) {
+                return "00:00";
+            }
             const minutes = Math.floor(this.timeRemaining / 60);
             const seconds = this.timeRemaining % 60;
+            return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+        },
+        formattedElapsedTime() {
+            const minutes = Math.floor(this.timeElapsed / 60);
+            const seconds = this.timeElapsed % 60;
             return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
         },
     },
 
     methods: {
-        async fetchQuizData() {
-            const res = await fetch(`${location.origin}/api/quizzes/${this.quizId}`, {
-                headers: { 'Authorization-Token': this.$store.state.auth_token },
-            });
-            const quiz = await res.json();
-            this.quiz = quiz;
-
-            if (quiz.time_duration) {
-                const [minutes, seconds] = quiz.time_duration.split(":").map(Number);
-                this.timeRemaining = (minutes * 60) + seconds;
-            } else {
-                this.timeRemaining = 1800;
-            }
-
-            const response = await fetch(`${location.origin}/api/quizzes/${this.quizId}/questions`, {
-                headers: { 'Authorization-Token': this.$store.state.auth_token },
-            });
-            const questions = await response.json();
-            this.questions = questions;
-            this.selectedOptions = new Array(questions.length).fill(undefined);
-        },
-
         startTimer() {
             this.timerInterval = setInterval(() => {
                 if (this.timeRemaining > 0) {
@@ -184,21 +203,62 @@ export default {
             clearInterval(this.timerInterval);
         },
 
-        preventReload(event) {
-            event.preventDefault();
-            event.returnValue = "Are you sure you want to leave the exam? Your progress may be lost!";
-        },
-
         nextQuestion() {
-            if (this.currentQuestionIndex < this.questions.length - 1) {
-                this.currentQuestionIndex++;
+            if (this.selectedOptions[this.currentQuestionIndex] === this.currentQuestion.correct_option) {
+                this.score++;
+                this.answeredQuestions[this.currentQuestionIndex] = true;
+                this.visitedQuestions[this.currentQuestionIndex] = true;
             }
+            if (this.currentQuestionIndex < this.questions.length - 1) {
+                this.visitedQuestions[this.currentQuestionIndex] = true;
+                this.currentQuestionIndex++;}
+                
+            else {
+                this.visitedQuestions[this.currentQuestionIndex] = true
+                this.currentQuestionIndex = 0;
+                
+            }
+            
+            if(quizCompleted){
+                if(this.currentQuestionIndex < this.questions.length - 1) {
+                    this.currentQuestionIndex++;
+
+            }
+        }
         },
 
         previousQuestion() {
             if (this.currentQuestionIndex > 0) {
+
                 this.currentQuestionIndex--;
             }
+        },
+
+        skipQuestion() {
+
+        
+            // ✅ Ensure current index exists before setting undefined
+            this.selectedOptions[this.currentQuestionIndex] = undefined;
+
+            this.selectedOption = null;
+            this.answeredQuestions[this.currentQuestionIndex] = false;
+            this.visitedQuestions[this.currentQuestionIndex] = true;
+        
+            // ✅ Move to the next question safely
+            if (this.currentQuestionIndex < this.questions.length - 1) {
+                this.currentQuestionIndex++;
+            } else {
+                this.currentQuestionIndex = 0;
+            }
+            if (!this.selectedOptions) {
+                this.selectedOptions = [];
+            }
+        }
+        ,
+        
+        goToQuestion(index) {
+            this.currentQuestionIndex = index;
+            this.visitedQuestions[index] = true;
         },
 
         async submitQuiz() {
@@ -206,33 +266,50 @@ export default {
             this.quizCompleted = true;
             this.stopTimer();
 
+            // Calculate score
             this.score = this.questions.reduce((acc, question, index) => {
                 return acc + (this.selectedOptions[index] === question.correct_option ? 1 : 0);
             }, 0);
 
-            await fetch(`${location.origin}/api/scores`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization-Token": this.$store.state.auth_token,
-                },
-                body: JSON.stringify({
-                    quiz_id: this.quizId,
-                    user_id: this.$store.state.user_id,
-                    total_score: this.score,
-                    time_taken: this.timeElapsed, 
-                }),
-            });
+            try {
+                await fetch(`${location.origin}/api/scores`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization-Token": this.$store.state.auth_token,
+                    },
+                    body: JSON.stringify({
+                        quiz_id: this.quizId,
+                        user_id: this.$store.state.user_id,
+                        total_score: this.score,
+                        time_taken: this.timeElapsed, 
+                    }),
+                });
+            } catch (error) {
+                console.error("Error saving score:", error);
+            }
+        },
+
+        isCorrect(index) {
+            return this.selectedOptions[index] === this.questions[index].correct_option;
         },
 
         goBack() {
             this.$router.go(-1);
         },
-
         exit() {
             if (confirm("Are you sure you want to exit the exam?")) {
                 this.$router.go(-1);
             }
         },
-    }
-};
+
+                
+
+            
+        
+    },
+
+    beforeUnmount() {
+        this.stopTimer();
+    },
+}

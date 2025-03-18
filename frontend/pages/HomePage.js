@@ -28,21 +28,21 @@ export default {
         <h2 class="text-center mb-5 fw-bold">Why Choose QuizMaster?</h2>
         <div class="row">
             <div class="col-md-4 text-center">
-                <div class="feature-card p-4 rounded shadow-sm" style="background-color:rgb(228, 228, 228);">
+                <div class="feature-card p-4 rounded shadow-sm" style="background-color:rgb(161, 141, 255);">
                     <i class="fas fa-brain fa-3x text-primary mb-3"></i>
                     <h4 class="fw-bold">Interactive Quizzes</h4>
                     <p class="text-muted">Engage with a variety of quizzes on different topics.</p>
                 </div>
             </div>
             <div class="col-md-4 text-center">
-                <div class="feature-card p-4 rounded shadow-sm" style="background-color: rgb(228, 228, 228);">
+                <div class="feature-card p-4 rounded shadow-sm" style="background-color: rgb(255, 86, 213);">
                     <i class="fas fa-trophy fa-3x text-primary mb-3"></i>
                     <h4 class="fw-bold">Compete & Win</h4>
                     <p class="text-muted">Challenge your friends and climb the leaderboard.</p>
                 </div>
             </div>
             <div class="col-md-4 text-center">
-                <div class="feature-card p-4 rounded shadow-sm" style="background-color: rgb(228, 228, 228);">
+                <div class="feature-card p-4 rounded shadow-sm" style="background-color: rgb(76, 243, 255);">
                     <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
                     <h4 class="fw-bold">Track Progress</h4>
                     <p class="text-muted">Monitor your performance and improve over time.</p>

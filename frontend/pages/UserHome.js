@@ -35,7 +35,7 @@ export default {
                                     <td>{{ chapter.name }}</td>
                                     <td>{{ chapter.no_of_questions }}</td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-success display-flex " @click.stop="goToQuizzes(chapter.id)">View</button>
+                                        <button class="btn btn-sm btn-danger display-flex " @click.stop="goToQuizzes(chapter.id)">View</button>
                                     </td>
                                 </tr>
                             </tbody>

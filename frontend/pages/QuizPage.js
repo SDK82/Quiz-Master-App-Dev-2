@@ -19,14 +19,21 @@ export default {
                             <p class="card-text"><strong>Remarks:</strong> {{ quiz.remarks || 'No remarks available' }}</p>
                             <p class="card-text"><strong>Start Date:</strong> {{ formatDate(quiz.date_of_quiz) }}</p>
                             <p class="card-text"><strong>Created At:</strong> {{ formatDate(quiz.created_at) }}</p>
-                            <router-link :to="'/quiz/' + quiz.id" class="btn btn-sm btn-outline-primary w-100">Start Quiz</router-link>
+                            <!-- Conditionally render the Start Quiz button -->
+                            <router-link 
+                                v-if="isQuizAvailable(quiz.date_of_quiz)" 
+                                :to="'/quiz/' + quiz.id" 
+                                class="btn btn-sm btn-outline-primary w-100"
+                            >
+                                Start Quiz
+                            </router-link>
+                            <p v-else class="text-danger">Quiz not yet available.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         <button class="btn btn-danger" @click="goBack">⬅️ Go Back</button>
-
     </div>
     `,
 
@@ -46,32 +53,33 @@ export default {
         });
     
         const quizzes = await response.json();
-        console.log("Fetched quizzes:", quizzes);  // Debugging
-        console.log("First quiz object:", quizzes[0]);
-        console.log("Questions in first quiz:", quizzes[0].questions);
-    
         this.quizzes = quizzes;
     
         if (quizzes.length > 0 && quizzes[0].chapter_name) {
             this.chapterName = quizzes[0].chapter_name;
         }
-    
-    
-
     },
 
     methods: {
-        
         formatDate(dateString) {
-                if (!dateString) return "N/A";
-                const date = new Date(dateString);
-                return date.getUTCDate().toString().padStart(2, '0') + '/' + 
-                       (date.getUTCMonth() + 1).toString().padStart(2, '0') + '/' + 
-                       date.getUTCFullYear();
-            },
-        
+            if (!dateString) return "N/A";
+            const date = new Date(dateString);
+            return date.getUTCDate().toString().padStart(2, '0') + '/' + 
+                   (date.getUTCMonth() + 1).toString().padStart(2, '0') + '/' + 
+                   date.getUTCFullYear();
+        },
+
         goBack() {
             this.$router.go(-1);
+        },
+
+        // Method to check if the quiz is available
+        isQuizAvailable(dateOfQuiz) {
+            const currentDate = new Date();
+            const quizDate = new Date(dateOfQuiz);
+            if (currentDate >= quizDate);
+                return true;
+            return false;
         }
     }
 };

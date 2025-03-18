@@ -6,38 +6,6 @@ from flask import current_app as app, request
 from werkzeug.security import generate_password_hash
 from datetime import datetime
 
-def put(self, id):
-    parser = reqparse.RequestParser()
-    parser.add_argument('email', required=False)
-    parser.add_argument('full_name', required=False)
-    parser.add_argument('qualification', required=False)
-    parser.add_argument('dob', required=False)
-    parser.add_argument('password', required=False)
-    parser.add_argument('confirm_password', required=False)
-    args = parser.parse_args()
-
-    account = User.query.get(id)
-    if not account:
-        return {'message': 'Account not found'}, 404
-
-    # Update only provided fields
-    if args['email']:
-        account.email = args['email']
-    if args['full_name']:
-        account.full_name = args['full_name']
-    if args['qualification']:
-        account.qualification = args['qualification']
-    if args['dob']:
-        account.dob = args['dob']
-
-    # Handle password change separately
-    if args['password']:
-        if args['password'] != args['confirm_password']:
-            return {'message': 'Passwords do not match'}, 400
-        account.password = generate_password_hash(args['password'])  # Hash the password
-
-    db.session.commit()
-    return {'message': 'Account updated successfully'}, 200
 
 cache = app.cache
 
@@ -136,6 +104,38 @@ class AccountApi(Resource):
         db.session.commit()
         return {'message': 'Account deleted'}, 200
         
+# def put(self, id):
+#     parser = reqparse.RequestParser()
+#     parser.add_argument('email', required=False)
+#     parser.add_argument('full_name', required=False)
+#     parser.add_argument('qualification', required=False)
+#     parser.add_argument('dob', required=False)
+#     parser.add_argument('password', required=False)
+#     parser.add_argument('confirm_password', required=False)
+#     args = parser.parse_args()
+
+#     account = User.query.get(id)
+#     if not account:
+#         return {'message': 'Account not found'}, 404
+
+#     # Update only provided fields
+#     if args['email']:
+#         account.email = args['email']
+#     if args['full_name']:
+#         account.full_name = args['full_name']
+#     if args['qualification']:
+#         account.qualification = args['qualification']
+#     if args['dob']:
+#         account.dob = args['dob']
+
+#     # Handle password change separately
+#     if args['password']:
+#         if args['password'] != args['confirm_password']:
+#             return {'message': 'Passwords do not match'}, 400
+#         account.password = generate_password_hash(args['password'])  # Hash the password
+
+#     db.session.commit()
+#     return {'message': 'Account updated successfully'}, 200
 
 class SubjectApi(Resource):
     @auth_required('token')
