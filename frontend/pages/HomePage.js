@@ -51,6 +51,15 @@ export default {
         </div>
     </div>
 </div>
+        <!-- Call to Action Section -->
+        <div class="cta-section py-5 text-center" style="background: linear-gradient(135deg, #2575fc, #6a11cb);">
+            <div class="container">
+                <h2 class="text-white fw-bold mb-4">Ready to Get Started?</h2>
+                <p class="lead text-white mb-4">Join QuizMaster today and unlock a world of knowledge and fun!</p>
+                <router-link to="/register" class="btn btn-light btn-lg">Sign Up Now</router-link>
+            </div>
+        </div>
+    </div>
 
     </div>
     `,

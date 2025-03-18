@@ -1,7 +1,7 @@
 from uuid import uuid4
 from flask import current_app as app, jsonify, render_template, request
 from backend.models import db, User, Role
-from flask_security import auth_required, login_required, current_user
+from flask_security import auth_required, login_required, current_user, login_user
 from flask_security.utils import verify_password, hash_password
 from datetime import datetime
 from backend.celery.tasks import add
@@ -53,11 +53,10 @@ def login():
         return jsonify({'message': 'User not found'}), 404
 
     if verify_password(password, user.password):
-        # Ensure get_auth_token() is defined or use Flask-Security's method for token generation
         return jsonify({
-            'token': user.get_auth_token(),  # Ensure this method exists or use another method for token
+            'token': user.get_auth_token(),  # Ensure this method exists
             'email': user.email,
-            'role': user.roles[0].name if user.roles else 'user',  # Ensure role exists
+            'role': user.roles[0].name if user.roles else 'user',
             'id': user.id,
             'full_name': user.full_name,
             'loggedIn': True
@@ -104,14 +103,14 @@ def register():
         # Create the user
         new_user = User(
             email=email,
-            password=hash_password(password),
+            password=hash_password(password),  # Password is hashed here
             roles=[role],
             active=True,
             full_name=full_name,
             dob=dob,
             qualification=qualification,
             created_at=datetime.utcnow(),
-            fs_uniquifier=str(uuid4()) 
+            fs_uniquifier=str(uuid4())
         )
         db.session.add(new_user)
         db.session.commit()

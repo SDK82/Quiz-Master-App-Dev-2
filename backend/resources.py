@@ -3,7 +3,7 @@ from flask_restful import Resource, Api, fields, marshal_with, reqparse
 from backend.models import db, User, Subject, Chapter, Question, Quiz, Score
 from flask_security import auth_required
 from flask import current_app as app, request
-from werkzeug.security import generate_password_hash
+from flask_security.utils import verify_password, hash_password
 from datetime import datetime
 
 
@@ -58,7 +58,8 @@ class AccountApi(Resource):
             if not account:
                 return {'message': 'Account not found'}, 404
             return account
-        
+
+
     def put(self, id):
         parser = reqparse.RequestParser()
         parser.add_argument('email', required=False)
@@ -73,28 +74,29 @@ class AccountApi(Resource):
         if not account:
             return {'message': 'Account not found'}, 404
 
-        try:
-            # Update only provided fields
-            if args['email']:
-                account.email = args['email']
-            if args['full_name']:
-                account.full_name = args['full_name']
-            if args['qualification']:
-                account.qualification = args['qualification']
-            if args['dob']:
-                account.dob = args['dob']
+        # Update only provided fields
+        if args['email']:
+            account.email = args['email']
+        if args['full_name']:
+            account.full_name = args['full_name']
+        if args['qualification']:
+            account.qualification = args['qualification']
+        if args['dob']:
+            try:
+                # Parse the date string into a datetime object
+                account.dob = datetime.strptime(args['dob'], '%Y-%m-%d')
+            except ValueError:
+                return {'message': 'Invalid date format. Use YYYY-MM-DD.'}, 400
 
-            # Handle password change separately
-            if args['password']:
-                if args['password'] != args['confirm_password']:
-                    return {'message': 'Passwords do not match'}, 400
-                account.password = generate_password_hash(args['password'])  # Hash the password
+        # Handle password change separately
+        if args['password']:
+            if args['password'] != args['confirm_password']:
+                return {'message': 'Passwords do not match'}, 400
+            # Hash the password before storing it
+            account.password = hash_password(args['password'])
 
-            db.session.commit()
-            return {'message': 'Account updated successfully'}, 200
-        except Exception as e:
-            db.session.rollback()  # Rollback in case of error
-            return {'message': f'An error occurred: {str(e)}'}, 500
+        db.session.commit()
+        return {'message': 'Account updated successfully'}, 200
     
     def delete(self, id):
         account = User.query.get(id)

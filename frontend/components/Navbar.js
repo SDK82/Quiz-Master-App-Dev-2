@@ -50,11 +50,10 @@ export default {
           <!-- Right side of the Navbar -->
           <ul class="navbar-nav ms-auto" v-if="isLoggedIn">
             <li class="nav-item d-flex align-items-center">
-              <span class="nav-link text-white fw-bold">
+              <router-link to="/account" class="nav-link text-white fw-bold text-decoration-none">
                 <span class="me-2" style="font-size: 1.5rem;">👤</span> {{ name }}
-              </span>
+              </router-link>
             </li>
-
           </ul>
         </div>
       </div>

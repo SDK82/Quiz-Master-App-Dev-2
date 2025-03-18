@@ -33,6 +33,9 @@ const store = new Vuex.Store({
             state.full_name = null;
             localStorage.removeItem('user');
         },
+        updateFullName(state, full_name) {
+            state.full_name = full_name; // Mutation to update full_name
+        },
     },
     actions: {
         // Actions to commit mutations (can be async)

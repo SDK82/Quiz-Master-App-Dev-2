@@ -1,7 +1,7 @@
 export default {
     template: `
     <div class="container my-5">
-        <h1 class="text-center mb-5" style="font-size: 2.5rem; font-weight: bold; color: #2c3e50;">Welcome {{$store.state.user_name}}</h1>
+        <h1 class="text-center mb-5" style="font-size: 2.5rem; font-weight: bold; color: #2c3e50;">Welcome {{$store.state.full_name}}</h1>
         <h2 class="text-center mb-5" style="font-size: 2rem; color: #2980b9;">Subjects</h2>
         
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
