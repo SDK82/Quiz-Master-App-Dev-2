@@ -83,7 +83,7 @@ class Quiz(db.Model):
     time_duration = db.Column(db.Integer, nullable=False, default=0)  # Default to 0 if needed
     remarks = db.Column(db.Text)
     difficulty = db.Column(db.String(50), nullable=False, default="Medium")  # Easy, Medium, Hard
-    created_at = db.Column(db.DateTime, server_default=db.func.current_timestamp())
+    created_at = db.Column(db.DateTime, nullable=False)  # Automatically set to current UTC time
 
 
 

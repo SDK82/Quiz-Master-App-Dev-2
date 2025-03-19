@@ -58,28 +58,58 @@ export default {
         if (quizzes.length > 0 && quizzes[0].chapter_name) {
             this.chapterName = quizzes[0].chapter_name;
         }
+
+
     },
 
     methods: {
+        
         formatDate(dateString) {
             if (!dateString) return "N/A";
             const date = new Date(dateString);
             return date.getUTCDate().toString().padStart(2, '0') + '/' + 
-                   (date.getUTCMonth() + 1).toString().padStart(2, '0') + '/' + 
-                   date.getUTCFullYear();
+                    (date.getUTCMonth() + 1).toString().padStart(2, '0') + '/' + 
+                    date.getUTCFullYear() + ' ' +
+                    date.getUTCHours().toString().padStart(2, '0') + ':' +
+                    date.getUTCMinutes().toString().padStart(2, '0');
         },
-
+        
         goBack() {
             this.$router.go(-1);
         },
-
-        // Method to check if the quiz is available
         isQuizAvailable(dateOfQuiz) {
-            const currentDate = new Date();
+            if (!dateOfQuiz) return false; // If no date is provided, quiz is unavailable
+        
+            console.log('Date of Quiz:', dateOfQuiz); // Debugging: Check the format
+        
+            // Convert the dateOfQuiz string to a Date object (in UTC)
             const quizDate = new Date(dateOfQuiz);
-            if (currentDate >= quizDate);
-                return true;
-            return false;
+        
+            // Check if the date is valid
+            if (isNaN(quizDate.getTime())) {
+                console.error('Invalid date format:', dateOfQuiz);
+                return false;
+            }
+        
+            // Get the current local time
+            const currentDateLocal = new Date();
+        
+            // Convert the quiz date (UTC) to local time for comparison
+            const quizDateLocal = new Date(
+                quizDate.getUTCFullYear(),
+                quizDate.getUTCMonth(),
+                quizDate.getUTCDate(),
+                quizDate.getUTCHours(),
+                quizDate.getUTCMinutes(),
+                quizDate.getUTCSeconds()
+            );
+        
+            console.log('Current Local Time:', currentDateLocal.toString());
+            console.log('Quiz Local Time:', quizDateLocal.toString());
+        
+            // Compare the dates
+            return currentDateLocal >= quizDateLocal;
         }
+        
     }
 };

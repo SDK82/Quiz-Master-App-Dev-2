@@ -369,22 +369,24 @@ class QuizApi(Resource):
         data = request.get_json()
 
         try:
-            # Convert date_of_quiz to datetime object
+            # Convert to Python datetime objects
             date_of_quiz = datetime.strptime(data['date_of_quiz'], "%Y-%m-%d %H:%M:%S")
+            created_at = datetime.strptime(data['created_at'], "%Y-%m-%d %H:%M:%S")
 
             new_quiz = Quiz(
                 chapter_id=data['chapter_id'],
                 date_of_quiz=date_of_quiz,
                 time_duration=data['time_duration'],
                 remarks=data['remarks'],
-                difficulty=data['difficulty'],  
-
+                difficulty=data['difficulty'], 
+                created_at=created_at
             )
 
             db.session.add(new_quiz)
             db.session.commit()
 
             return {"message": "Quiz created successfully", "id": new_quiz.id}, 201
+
         except Exception as e:
             db.session.rollback()
             return {"message": f"Error creating quiz: {str(e)}"}, 400

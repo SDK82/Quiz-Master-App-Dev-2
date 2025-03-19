@@ -115,6 +115,7 @@ export default {
             subjects: [], // To store subjects fetched from the API
             chapters: [], // To store chapters fetched from the API
             selectedSubjectId: null, // To store the selected subject ID
+            created_at: this.getFormattedDate(),
         };
     },
     async mounted() {
@@ -165,14 +166,24 @@ export default {
         removeQuestion(index) {
             this.quiz.questions.splice(index, 1);
         },
+        getFormattedDate() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+        },   
 
         async createQuiz() {
             try {
                 // Convert Date Format for Database
                 const formattedDate = this.quiz.date_of_quiz.replace("T", " ") + ":00";
+        
 
                 // Format Time Duration as "MM:SS"
                 const formattedTimeDuration = `${String(this.quiz.minutes).padStart(2, '0')}:${String(this.quiz.seconds).padStart(2, '0')}`;
+                
+                // Create the correct timestamp for created_at
+                const now = new Date();
+                const formattedCreatedAt = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+        
 
                 // Create the quiz
                 const quizResponse = await fetch(`${location.origin}/api/quizzes`, {
@@ -187,6 +198,7 @@ export default {
                         date_of_quiz: formattedDate,
                         time_duration: formattedTimeDuration, // Store as MM:SS format
                         difficulty: this.quiz.difficulty,
+                        created_at: formattedCreatedAt, // Pass valid timestamp
                     }),
                 });
 
