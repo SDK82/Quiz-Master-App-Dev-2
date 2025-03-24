@@ -7,6 +7,7 @@ from flask_caching import Cache
 from backend.celery.celery_factory import celery_init_app
 from werkzeug.utils import secure_filename
 import os
+import flask_excel as excel
 
 def create_app():
     app = Flask(__name__, template_folder='frontend', static_folder='frontend', static_url_path='/static')
@@ -53,6 +54,9 @@ celery_app = celery_init_app(app)
 # Import initial data and routes
 import backend.create_initial_data
 import backend.routes
+excel.init_excel(app)
+
 
 if __name__ == '__main__':
+
     app.run(debug=True)

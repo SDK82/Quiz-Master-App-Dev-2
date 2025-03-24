@@ -28,11 +28,16 @@ export default {
             <!-- Scores will be dynamically inserted here -->
           </tbody>
         </table>
+
   
         <div id="error" class="text-center" style="display: none;">
           <p>Failed to load scores. Please try again later.</p>
         </div>
       </div>
+      <div>
+      <button @click="create_csv" class="btn btn-primary">Download CSV</button>
+    </div>
+  </div>
     `,
     data() {
         return {
@@ -112,6 +117,33 @@ export default {
         // Show the table once data is populated
         document.getElementById("scoresTable").style.display = "block";
       },
+      async create_csv() {
+        try {
+          const response = await fetch(`${location.origin}/create_csv`);
+          if (!response.ok) throw new Error("Failed to create CSV");
+      
+          const taskData = await response.json();
+          const task_id = taskData.task_id;
+      
+          const interval = setInterval(async () => {
+            try {
+              const res = await fetch(`${location.origin}/download_csv/${task_id}`);
+              if (res.ok) {
+                clearInterval(interval);
+                console.log("Downloaded");
+                window.open(`${location.origin}/download_csv/${task_id}`);
+              }
+            } catch (error) {
+              console.error("Error downloading CSV:", error);
+            }
+          }, 1000);
+        } catch (error) {
+          console.error("Error creating CSV:", error);
+        }
+      }
+      
+
+
     },
   };
   

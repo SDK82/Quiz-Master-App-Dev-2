@@ -390,6 +390,37 @@ class QuizApi(Resource):
         except Exception as e:
             db.session.rollback()
             return {"message": f"Error creating quiz: {str(e)}"}, 400
+        
+    @auth_required('token')
+    def put(self, quiz_id):
+        if not any(role.name == 'admin' for role in current_user.roles):
+            return {'message': 'You are not authorized to update quizzes'}, 403
+
+        quiz = Quiz.query.get(quiz_id)
+        if not quiz:
+            return {'message': 'Quiz not found'}, 404
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('chapter_id', type=int, required=False)
+        parser.add_argument('date_of_quiz', type=str, required=False)
+        parser.add_argument('time_duration', type=str, required=False)  # Keep as string
+        parser.add_argument('remarks', type=str, required=False)
+        parser.add_argument('difficulty', type=str, required=False)
+        args = parser.parse_args()
+
+        if args['chapter_id'] is not None:
+            quiz.chapter_id = args['chapter_id']
+        if args['date_of_quiz']:
+            quiz.date_of_quiz = datetime.strptime(args['date_of_quiz'], "%Y-%m-%d %H:%M:%S")
+        if args['time_duration'] is not None:
+            quiz.time_duration = args['time_duration']  # Store "MM:SS" directly
+        if args['remarks'] is not None:
+            quiz.remarks = args['remarks']
+        if args['difficulty'] is not None:
+            quiz.difficulty = args['difficulty']
+
+        db.session.commit()
+        return {'message': 'Quiz updated successfully'}, 200
     
     @auth_required('token')
     def delete(self, quiz_id):

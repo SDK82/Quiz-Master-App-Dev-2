@@ -3,7 +3,11 @@ export default {
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
       <div class="container">
         <!-- Brand name/logo -->
-        <router-link to="/" class="navbar-brand">Quiz App</router-link>
+        <router-link to="/" class="navbar-brand">
+        <img src="/uploads/subjects/logom.png" alt="Quiz App Logo" style="height: 30px; width: auto;" />
+      </router-link>
+
+        
         
         <!-- Toggler for mobile view -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">

@@ -5,6 +5,9 @@ export default {
         <div class="header">
           <h1 class="page-title">📊 Score Summary</h1>
           <p class="page-subtitle">Your quiz performance at a glance</p>
+          <div>
+          <button @click="create_csv" class="btn btn-primary">Download CSV</button>
+        </div>
         </div>
 
         <div class="table-responsive">
@@ -31,6 +34,8 @@ export default {
         </div>
       </div>
     </div>
+
+</div>
   `,
 
   data() {
@@ -44,6 +49,30 @@ export default {
       const minutes = Math.floor(seconds / 60);
       const remainingSeconds = seconds % 60;
       return `${minutes} min ${remainingSeconds} sec`;
+    },
+    async create_csv() {
+      try {
+        const response = await fetch(`${location.origin}/create_csv`);
+        if (!response.ok) throw new Error("Failed to create CSV");
+    
+        const taskData = await response.json();
+        const task_id = taskData.task_id;
+    
+        const interval = setInterval(async () => {
+          try {
+            const res = await fetch(`${location.origin}/download_csv/${task_id}`);
+            if (res.ok) {
+              clearInterval(interval);
+              console.log("Downloaded");
+              window.open(`${location.origin}/download_csv/${task_id}`);
+            }
+          } catch (error) {
+            console.error("Error downloading CSV:", error);
+          }
+        }, 1000);
+      } catch (error) {
+        console.error("Error creating CSV:", error);
+      }
     }
   },
 

@@ -80,7 +80,7 @@ class Quiz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     chapter_id = db.Column(db.Integer, db.ForeignKey('chapters.id'), nullable=False)
     date_of_quiz = db.Column(db.DateTime, nullable=False)
-    time_duration = db.Column(db.Integer, nullable=False, default=0)  # Default to 0 if needed
+    time_duration = db.Column(db.String(5), nullable=False, default="00:00")  # Change to String    
     remarks = db.Column(db.Text)
     difficulty = db.Column(db.String(50), nullable=False, default="Medium")  # Easy, Medium, Hard
     created_at = db.Column(db.DateTime, nullable=False)  # Automatically set to current UTC time

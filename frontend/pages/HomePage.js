@@ -69,6 +69,14 @@ export default {
         <p class="lead text-white mb-4">Join QuizMaster today and unlock a world of knowledge and fun!</p>
         <router-link to="/user" class="btn btn-light btn-lg">Go to Quizzes</router-link>
     </div>
+    <div v-if="role === 'admin'">
+    <div class="cta-section py-5 text-center" style="background: linear-gradient(135deg, #2575fc, #6a11cb);">
+    <div class="container">
+        <h2 class="text-white
+        fw-bold mb-4">Ready to Get Started?</h2>
+        <p class="lead text-white mb-4">Join QuizMaster today and unlock a world of knowledge and fun!</p>
+        <router-link to="/admin-dashboard" class="btn btn-light btn-lg">Go to Admin Dashboard</router-link>
+    </div>
 </div>
 </div>
 </div>
